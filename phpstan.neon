@@ -1,0 +1,17 @@
+parameters:
+    level: 5
+    paths:
+        - src
+        - public
+        - tests
+    laminasframework:
+        serviceManagerLoader: tests/phpstan-container.php
+    excludePaths:
+        analyse:
+            - tests/Support/_generated/AcceptanceTesterActions.php
+    ignoreErrors:
+        -
+            message: '~Parameter \#1 \$config of method Laminas\\ServiceManager\\ServiceManager::configure\(\) expects .*~'
+            paths:
+                - config/container.php
+    reportUnmatchedIgnoredErrors: false

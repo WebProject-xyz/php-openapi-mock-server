@@ -1,0 +1,100 @@
+namespace: WebProject\PhpOpenApiMockServer\Tests
+support_namespace: Support
+# suite config
+suites:
+    Acceptance:
+        actor: AcceptanceTester
+        path: Acceptance
+        extensions:
+          enabled:
+            - Codeception\Extension\RunProcess:
+                - php -S localhost:8080 -t public
+        modules:
+            enabled:
+                - PhpBrowser:
+                    url: http://localhost:8080
+                - REST:
+                    depends: PhpBrowser
+                - Asserts
+    JsonAcceptance:
+        actor: AcceptanceTester
+        path: JsonAcceptance
+        extensions:
+          enabled:
+            - Codeception\Extension\RunProcess:
+                - OPENAPI_SPEC=data/openapi.json php -S localhost:8081 -t public
+        modules:
+            enabled:
+                - PhpBrowser:
+                    url: http://localhost:8081
+                - REST:
+                    depends: PhpBrowser
+                - Asserts
+    RemoteAcceptance:
+        actor: AcceptanceTester
+        path: RemoteAcceptance
+        extensions:
+          enabled:
+            - Codeception\Extension\RunProcess:
+                - OPENAPI_SPEC=https://raw.githubusercontent.com/Redocly/openapi-template/gh-pages/openapi.yaml php -S localhost:8082 -t public
+        modules:
+            enabled:
+                - PhpBrowser:
+                    url: http://localhost:8082
+                - REST:
+                    depends: PhpBrowser
+                - Asserts
+    FailureAcceptance:
+        actor: AcceptanceTester
+        path: FailureAcceptance
+        extensions:
+          enabled:
+            - Codeception\Extension\RunProcess:
+                - OPENAPI_SPEC=https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/non-existent.yaml php -S localhost:8083 -t public
+        modules:
+            enabled:
+                - PhpBrowser:
+                    url: http://localhost:8083
+                - REST:
+                    depends: PhpBrowser
+                - Asserts
+
+extensions:
+    enabled:
+        - Codeception\Extension\RunFailed
+        - Codeception\Extension\RunProcess:
+            - php -S localhost:8080 -t public
+            - OPENAPI_SPEC=data/openapi.json php -S localhost:8081 -t public
+            - OPENAPI_SPEC=https://raw.githubusercontent.com/Redocly/openapi-template/gh-pages/openapi.yaml php -S localhost:8082 -t public
+            - OPENAPI_SPEC=https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/non-existent.yaml php -S localhost:8083 -t public
+        - WebProject\Codeception\Module\AiReporter\Extension\AiReporter:
+              format: both
+              output: tests/_output
+              max_frames: 8
+              include_steps: true
+              include_artifacts: true
+              compact_paths: true
+
+params:
+    - env
+
+gherkin: []
+
+# additional paths
+paths:
+    tests: tests
+    output: tests/_output
+    data: tests/Support/Data
+    support: tests/Support
+    envs: tests/_envs
+
+settings:
+    shuffle: false
+    lint: true
+
+coverage:
+  enabled: true
+  include:
+    - public/*
+  exclude:
+    - tests/*
