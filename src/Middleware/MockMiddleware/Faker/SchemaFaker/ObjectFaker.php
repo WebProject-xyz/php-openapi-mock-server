@@ -43,7 +43,9 @@ final class ObjectFaker implements FakerInterface
             $selectedOptionalKeys = $optionalKeys;
         } elseif ($optionalKeys !== []) {
             $countKeys = count($optionalKeys);
-            $count     = random_int(0, $countKeys);
+            // Ensure at least one property is returned if possible, avoiding empty objects
+            $minToSelect = ($requiredKeys === []) ? 1 : 0;
+            $count     = random_int($minToSelect, $countKeys);
             if ($count > 0) {
                 $indices = (array) array_rand($optionalKeys, $count);
                 foreach ($indices as $index) {

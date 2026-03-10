@@ -48,9 +48,34 @@ final class SchemaFaker
         $resolvedData = self::$resolvedCache[$cacheKey];
         $resolvedSchema = new Schema($resolvedData);
 
-        // If it's still complex after resolution (unlikely after resolveOfConstraints)
-        // or if it's a known base type, we delegate back to the registry.
-        return $this->fakerRegistry->generate($resolvedSchema, $options, $fakerContext);
+        // Directly dispatch to known fakers to avoid infinite loop via FakerRegistry::generate()
+        $type = $resolvedSchema->type;
+        if (is_array($type)) {
+            $type = reset($type);
+        }
+
+        if (is_string($type)) {
+            switch ($type) {
+                case 'string':
+                    return (new StringFaker())->generate($resolvedSchema, $options, $this->fakerRegistry, $fakerContext);
+                case 'integer':
+                case 'number':
+                    return (new NumberFaker())->generate($resolvedSchema, $options, $this->fakerRegistry, $fakerContext);
+                case 'boolean':
+                    return (new BooleanFaker())->generate($resolvedSchema, $options, $this->fakerRegistry, $fakerContext);
+                case 'array':
+                    return (new ArrayFaker())->generate($resolvedSchema, $options, $this->fakerRegistry, $fakerContext);
+                case 'object':
+                    return (new ObjectFaker())->generate($resolvedSchema, $options, $this->fakerRegistry, $fakerContext);
+            }
+        }
+
+        // Fallback for objects with properties but no type
+        if (! empty($resolvedSchema->properties)) {
+            return (new ObjectFaker())->generate($resolvedSchema, $options, $this->fakerRegistry, $fakerContext);
+        }
+
+        return [];
     }
 
     /**

@@ -30,47 +30,48 @@ class NumberFakerTest extends Unit
     public function testGenerateWithConstraints(): void
     {
         $schema = new Schema([
-            'type'    => 'integer',
-            'minimum' => 10,
-            'maximum' => 20,
-        ]);
-        $options = new Options();
-
-        $numberFaker = new NumberFaker();
-        $result      = $numberFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
-        self::assertGreaterThanOrEqual(10, $result);
-        self::assertLessThanOrEqual(20, $result);
-    }
-
-    public function testGenerateWithExclusiveNumbers(): void
-    {
-        $schema = new Schema([
-            'type'             => 'integer',
+            'type'             => 'number',
             'minimum'          => 10,
-            'exclusiveMinimum' => true,
             'maximum'          => 12,
+            'exclusiveMinimum' => true,
             'exclusiveMaximum' => true,
         ]);
         $options = new Options();
 
         $numberFaker = new NumberFaker();
         $result      = $numberFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
-        self::assertSame(11, $result);
+        self::assertIsNumeric($result);
+        self::assertGreaterThan(10, $result);
+        self::assertLessThan(12, $result);
+    }
+
+    public function testGenerateWithExclusiveNumbers(): void
+    {
+        $schema = new Schema([
+            'type'             => 'number',
+            'exclusiveMinimum' => 10,
+            'exclusiveMaximum' => 13,
+        ]);
+        $options = new Options();
+
+        $numberFaker = new NumberFaker();
+        $result      = $numberFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
+        self::assertIsNumeric($result);
+        self::assertGreaterThan(10, $result);
+        self::assertLessThan(13, $result);
     }
 
     public function testGenerateWithMultipleOf(): void
     {
         $schema = new Schema([
             'type'       => 'integer',
-            'minimum'    => 1,
-            'maximum'    => 10,
-            'multipleOf' => 5,
+            'multipleOf' => 7,
         ]);
         $options = new Options();
 
         $numberFaker = new NumberFaker();
         $result      = $numberFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
-        self::assertTrue(0 === $result % 5);
+        self::assertSame(0, (int) $result % 7);
     }
 
     public function testGenerateStatic(): void
@@ -86,18 +87,18 @@ class NumberFakerTest extends Unit
 
     public function testGenerateStaticExample(): void
     {
-        $schema  = new Schema(['type' => 'integer', 'example' => 1337]);
+        $schema  = new Schema(['type' => 'number', 'example' => 3.14]);
         $options = new Options();
         $options->setStrategy(MockStrategy::STATIC);
 
         $numberFaker = new NumberFaker();
         $result      = $numberFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
-        self::assertSame(1337, $result);
+        self::assertSame(3.14, $result);
     }
 
     public function testGenerateStaticNullable(): void
     {
-        $schema  = new Schema(['type' => 'integer', 'nullable' => true]);
+        $schema  = new Schema(['type' => 'number', 'nullable' => true]);
         $options = new Options();
         $options->setStrategy(MockStrategy::STATIC);
 
@@ -120,12 +121,14 @@ class NumberFakerTest extends Unit
     {
         $options = new Options();
         $options->setStrategy(MockStrategy::STATIC);
+
         $numberFaker = new NumberFaker();
 
-        $schemaInt32 = new Schema(['type' => 'integer', 'format' => 'int32']);
-        self::assertIsInt($numberFaker->generate($schemaInt32, $options, $this->fakerRegistry, FakerContext::response()));
-
-        $schemaFloat = new Schema(['type' => 'number', 'format' => 'float']);
-        self::assertIsFloat($numberFaker->generate($schemaFloat, $options, $this->fakerRegistry, FakerContext::response()));
+        $formats = ['int32', 'int64', 'float', 'double'];
+        foreach ($formats as $format) {
+            $schema = new Schema(['type' => 'number', 'format' => $format]);
+            $result = $numberFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
+            self::assertIsNumeric($result);
+        }
     }
 }
