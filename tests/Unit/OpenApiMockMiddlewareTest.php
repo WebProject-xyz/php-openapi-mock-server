@@ -69,8 +69,10 @@ class OpenApiMockMiddlewareTest extends Unit
         $request->method('getHeader')->willReturnMap([
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_ACTIVE, []],
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_STATUSCODE, []],
-            [OpenApiMockMiddleware::HEADER_CONTENT_TYPE, []],
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_EXAMPLE, []],
+        ]);
+        $request->method('getHeaderLine')->willReturnMap([
+            [OpenApiMockMiddleware::HEADER_ACCEPT, ''],
         ]);
 
         $nextHandler      = $this->createMock(RequestHandlerInterface::class);
@@ -94,8 +96,10 @@ class OpenApiMockMiddlewareTest extends Unit
         $request->method('getHeader')->willReturnMap([
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_ACTIVE, ['true']],
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_STATUSCODE, ['200']],
-            [OpenApiMockMiddleware::HEADER_CONTENT_TYPE, ['application/json']],
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_EXAMPLE, ['default']],
+        ]);
+        $request->method('getHeaderLine')->willReturnMap([
+            [OpenApiMockMiddleware::HEADER_ACCEPT, 'application/json'],
         ]);
 
         $schema                  = $this->createMock(OpenApi::class);
@@ -106,7 +110,7 @@ class OpenApiMockMiddlewareTest extends Unit
 
         $mockResponse = $this->createMock(ResponseInterface::class);
         $this->requestHandler->expects(self::once())->method('handleValidRequest')
-            ->with($schema, $operationAddress, 'application/json', '200', 'default')
+            ->with($schema, $operationAddress, ['application/json'], '200', 'default')
             ->willReturn($mockResponse);
 
         $responseResult = $this->createMock(ResponseValidatorResult::class);
@@ -132,8 +136,10 @@ class OpenApiMockMiddlewareTest extends Unit
         $request->method('getHeader')->willReturnMap([
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_ACTIVE, ['true']],
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_STATUSCODE, []],
-            [OpenApiMockMiddleware::HEADER_CONTENT_TYPE, ['application/json']],
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_EXAMPLE, []],
+        ]);
+        $request->method('getHeaderLine')->willReturnMap([
+            [OpenApiMockMiddleware::HEADER_ACCEPT, 'application/json'],
         ]);
 
         $schema                  = $this->createMock(OpenApi::class);
@@ -145,7 +151,7 @@ class OpenApiMockMiddlewareTest extends Unit
 
         $errorResponse = $this->createMock(ResponseInterface::class);
         $this->requestHandler->expects(self::once())->method('handleInvalidRequest')
-            ->with($runtimeException, $schema, $operationAddress, 'application/json')
+            ->with($runtimeException, $schema, $operationAddress, ['application/json'])
             ->willReturn($errorResponse);
 
         $nextHandler = $this->createMock(RequestHandlerInterface::class);
@@ -167,8 +173,10 @@ class OpenApiMockMiddlewareTest extends Unit
         $request->method('getHeader')->willReturnMap([
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_ACTIVE, ['true']],
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_STATUSCODE, []],
-            [OpenApiMockMiddleware::HEADER_CONTENT_TYPE, ['application/json']],
             [OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_EXAMPLE, []],
+        ]);
+        $request->method('getHeaderLine')->willReturnMap([
+            [OpenApiMockMiddleware::HEADER_ACCEPT, 'application/json'],
         ]);
 
         $schema                 = $this->createMock(OpenApi::class);

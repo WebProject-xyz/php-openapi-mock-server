@@ -1,0 +1,56 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Mezzio\Application;
+use Mezzio\MiddlewareFactory;
+use Psr\Container\ContainerInterface;
+
+(static function (): void {
+    // Find the Composer autoloader (works both standalone and as dependency)
+    $autoloadPaths = [
+        __DIR__ . '/../../../autoload.php',   // installed as dependency: vendor/webproject-xyz/php-openapi-mock-server/bin/
+        __DIR__ . '/../vendor/autoload.php',  // standalone: project-root/bin/
+    ];
+
+    $autoloaderFound = false;
+    foreach ($autoloadPaths as $autoloadPath) {
+        if (file_exists($autoloadPath)) {
+            require $autoloadPath;
+            $autoloaderFound = true;
+            break;
+        }
+    }
+
+    if (! $autoloaderFound) {
+        fwrite(STDERR, 'Could not find Composer autoloader. Please run "composer install".' . PHP_EOL);
+        exit(1);
+    }
+
+    // Resolve relative OPENAPI_SPEC paths to absolute from the current working directory
+    $specPath = getenv('OPENAPI_SPEC');
+    if ($specPath !== false && $specPath !== '' && ! str_starts_with($specPath, '/') && ! str_starts_with($specPath, 'http')) {
+        putenv('OPENAPI_SPEC=' . getcwd() . '/' . $specPath);
+    }
+
+    // Optional Codeception coverage collector
+    $c3Path = dirname(__DIR__) . '/c3.php';
+    if (file_exists($c3Path)) {
+        require $c3Path;
+    }
+
+    /** @var ContainerInterface $container */
+    $container = require dirname(__DIR__) . '/config/container.php';
+
+    /** @var Application $app */
+    $app = $container->get(Application::class);
+
+    /** @var MiddlewareFactory $factory */
+    $factory = $container->get(MiddlewareFactory::class);
+
+    (require dirname(__DIR__) . '/config/pipeline.php')($app, $factory);
+    (require dirname(__DIR__) . '/config/routes.php')($app, $factory);
+
+    $app->run();
+})();

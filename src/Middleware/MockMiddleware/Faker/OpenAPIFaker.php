@@ -23,6 +23,7 @@ use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Utils\HttpMethod;
 use Webmozart\Assert\Assert;
 
 use function array_key_exists;
+use function array_keys;
 
 final class OpenAPIFaker
 {
@@ -162,6 +163,26 @@ final class OpenAPIFaker
         }
 
         return $this;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getAvailableResponseContentTypes(
+        string $path,
+        string $method,
+        string $statusCode = '200',
+    ): array {
+        $operation = $this->findOperation($path, HttpMethod::fromString($method));
+
+        if ($operation->responses === null || ! $operation->responses->hasResponse($statusCode)) {
+            return [];
+        }
+
+        /** @var Response $response */
+        $response = $operation->responses->getResponse($statusCode);
+
+        return array_keys($response->content);
     }
 
     private function findOperation(string $path, HttpMethod $httpMethod): Operation

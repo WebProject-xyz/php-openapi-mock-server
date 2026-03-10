@@ -40,7 +40,7 @@ class SchemaFakerExtraTest extends Unit
             ->with(self::callback(static fn ($e): bool => $e instanceof SecurityException), 'application/json')
             ->willReturn($this->createMock(ResponseInterface::class));
 
-        $requestHandler->handleInvalidRequest($exception, $openApi, $operationAddress, 'application/json');
+        $requestHandler->handleInvalidRequest($exception, $openApi, $operationAddress, ['application/json']);
     }
 
     public function testHandleValidationFailedRequestCatchBlock(): void
@@ -58,6 +58,6 @@ class SchemaFakerExtraTest extends Unit
             ->with(self::callback(static fn ($e): bool => $e instanceof ValidationException), 'application/json')
             ->willReturn($this->createMock(ResponseInterface::class));
 
-        $requestHandler->handleInvalidRequest($exception, $openApi, $operationAddress, 'application/json');
+        $requestHandler->handleInvalidRequest($exception, $openApi, $operationAddress, ['application/json']);
     }
 }

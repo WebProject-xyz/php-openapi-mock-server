@@ -51,6 +51,9 @@
     "slam/phpstan-laminas-framework": "^2.0",
     "webproject-xyz/codeception-module-ai-reporter": "^1.0.1"
   },
+  "bin": [
+    "bin/openapi-mock-server"
+  ],
   "autoload": {
     "psr-4": {
       "WebProject\\PhpOpenApiMockServer\\": "src/"

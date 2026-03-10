@@ -11,15 +11,21 @@ use Psr\Http\Message\ServerRequestInterface;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Utils\RemoteSpecificationLoader;
 
 return static function (Application $application, MiddlewareFactory $middlewareFactory): void {
-    $specPath = getenv('OPENAPI_SPEC') ?: 'data/openapi.yaml';
-    $projectRoot = realpath(__DIR__ . '/..') ?: '/app';
+    $specPath = getenv('OPENAPI_SPEC') ?: null;
+    $packageRoot = realpath(__DIR__ . '/..') ?: '/app';
 
-    $specHandler = static function (ServerRequestInterface $serverRequest) use ($specPath, $projectRoot): ResponseInterface {
+    if ($specPath === null || $specPath === false) {
+        $specPath = $packageRoot . '/data/openapi.yaml';
+    } elseif (!str_starts_with((string) $specPath, '/') && !str_starts_with((string) $specPath, 'http')) {
+        $resolveBase = str_contains($packageRoot, DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR)
+            ? (getcwd() ?: '.')
+            : $packageRoot;
+        $specPath = $resolveBase . DIRECTORY_SEPARATOR . $specPath;
+    }
+
+    $specHandler = static function (ServerRequestInterface $serverRequest) use ($specPath): ResponseInterface {
         try {
             $path = $specPath;
-            if (!str_starts_with((string) $path, '/') && !str_starts_with((string) $path, 'http')) {
-                $path = $projectRoot . DIRECTORY_SEPARATOR . $path;
-            }
 
             if (str_starts_with((string) $path, 'http')) {
                 $content = file_get_contents($path, false, RemoteSpecificationLoader::createStreamContext());

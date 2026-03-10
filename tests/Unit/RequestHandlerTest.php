@@ -47,10 +47,10 @@ class RequestHandlerTest extends Unit
 
         $this->responseFaker->expects(self::once())
             ->method('mock')
-            ->with($openApi, $operationAddress, ['200', '201'], 'application/json', 'default')
+            ->with($openApi, $operationAddress, ['200', '201'], ['application/json'], 'default')
             ->willReturn($expectedResponse);
 
-        $response = $this->requestHandler->handleValidRequest($openApi, $operationAddress, 'application/json', null, 'default');
+        $response = $this->requestHandler->handleValidRequest($openApi, $operationAddress, ['application/json'], null, 'default');
 
         self::assertSame($expectedResponse, $response);
     }
@@ -65,10 +65,10 @@ class RequestHandlerTest extends Unit
         // handleNoPathMatchedRequest is called, which calls mock with fallback codes
         $this->responseFaker->expects(self::once())
             ->method('mock')
-            ->with($openApi, $operationAddress, ['404', '400', '500', 'default'], 'application/json')
+            ->with($openApi, $operationAddress, ['404', '400', '500', 'default'], ['application/json'])
             ->willReturn($expectedResponse);
 
-        $response = $this->requestHandler->handleInvalidRequest($noPath, $openApi, $operationAddress, 'application/json');
+        $response = $this->requestHandler->handleInvalidRequest($noPath, $openApi, $operationAddress, ['application/json']);
 
         self::assertSame($expectedResponse, $response);
     }
@@ -82,10 +82,10 @@ class RequestHandlerTest extends Unit
 
         $this->responseFaker->expects(self::once())
             ->method('mock')
-            ->with($openApi, $operationAddress, ['401', '500', 'default'], 'application/json')
+            ->with($openApi, $operationAddress, ['401', '500', 'default'], ['application/json'])
             ->willReturn($expectedResponse);
 
-        $response = $this->requestHandler->handleInvalidRequest($exception, $openApi, $operationAddress, 'application/json');
+        $response = $this->requestHandler->handleInvalidRequest($exception, $openApi, $operationAddress, ['application/json']);
 
         self::assertSame($expectedResponse, $response);
     }
@@ -99,10 +99,10 @@ class RequestHandlerTest extends Unit
 
         $this->responseFaker->expects(self::once())
             ->method('mock')
-            ->with($openApi, $operationAddress, ['422', '400', '500', 'default'], 'application/json')
+            ->with($openApi, $operationAddress, ['422', '400', '500', 'default'], ['application/json'])
             ->willReturn($expectedResponse);
 
-        $response = $this->requestHandler->handleInvalidRequest($exception, $openApi, $operationAddress, 'application/json');
+        $response = $this->requestHandler->handleInvalidRequest($exception, $openApi, $operationAddress, ['application/json']);
 
         self::assertSame($expectedResponse, $response);
     }
@@ -119,7 +119,7 @@ class RequestHandlerTest extends Unit
             ->with(self::callback(static fn ($e): bool => $e instanceof ValidationException), 'application/json')
             ->willReturn($expectedResponse);
 
-        $response = $this->requestHandler->handleInvalidRequest($exception, $openApi, $operationAddress, 'application/json');
+        $response = $this->requestHandler->handleInvalidRequest($exception, $openApi, $operationAddress, ['application/json']);
 
         self::assertSame($expectedResponse, $response);
     }
@@ -140,7 +140,7 @@ class RequestHandlerTest extends Unit
             ->with(self::callback(static fn ($e): bool => $e instanceof RoutingException && RequestErrorType::NO_PATH_AND_METHOD_MATCHED_ERROR->value === $e->getType()), 'application/json')
             ->willReturn($expectedResponse);
 
-        $response = $this->requestHandler->handleInvalidRequest($noOperation, $openApi, $operationAddress, 'application/json');
+        $response = $this->requestHandler->handleInvalidRequest($noOperation, $openApi, $operationAddress, ['application/json']);
 
         self::assertSame($expectedResponse, $response);
     }
@@ -161,7 +161,7 @@ class RequestHandlerTest extends Unit
             ->with(self::callback(static fn ($e): bool => $e instanceof RoutingException && RequestErrorType::NO_PATH_AND_METHOD_AND_RESPONSE_CODE_MATCHED_ERROR->value === $e->getType()), 'application/json')
             ->willReturn($expectedResponse);
 
-        $response = $this->requestHandler->handleInvalidRequest($noResponseCode, $openApi, $operationAddress, 'application/json');
+        $response = $this->requestHandler->handleInvalidRequest($noResponseCode, $openApi, $operationAddress, ['application/json']);
 
         self::assertSame($expectedResponse, $response);
     }
@@ -176,7 +176,7 @@ class RequestHandlerTest extends Unit
             ->with(self::callback(static fn ($e): bool => $e instanceof ValidationException), 'application/json')
             ->willReturn($expectedResponse);
 
-        $response = $this->requestHandler->handleInvalidRequest($exception, null, null, 'application/json');
+        $response = $this->requestHandler->handleInvalidRequest($exception, null, null, ['application/json']);
 
         self::assertSame($expectedResponse, $response);
     }

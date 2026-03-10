@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response;
 
 use function array_filter;
+use function in_array;
 use cebe\openapi\spec\OpenApi;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\RequestException;
 use InvalidArgumentException;
@@ -33,6 +34,7 @@ class ResponseFaker
 
     /**
      * @param array<int, string>|string $statusCodes
+     * @param list<string>              $acceptedContentTypes
      *
      * @throws NoPath
      * @throws NoResponse
@@ -43,7 +45,7 @@ class ResponseFaker
         OpenApi $openApi,
         OperationAddress $operationAddress,
         array|string $statusCodes,
-        string $contentType = 'application/json',
+        array $acceptedContentTypes = ['application/json'],
         ?string $exampleName = null
     ): ResponseInterface {
         $codes = (array) $statusCodes;
@@ -51,7 +53,7 @@ class ResponseFaker
 
         foreach ($codes as $code) {
             try {
-                return $this->mockResponse($openApi, $operationAddress, (string) $code, $contentType, $exampleName);
+                return $this->mockResponse($openApi, $operationAddress, (string) $code, $acceptedContentTypes, $exampleName);
             } catch (NoResponse|NoPath|NoExample $th) {
                 $lastException = $th;
                 continue;
@@ -91,6 +93,8 @@ class ResponseFaker
     }
 
     /**
+     * @param list<string> $acceptedContentTypes
+     *
      * @throws NoPath
      * @throws NoResponse
      * @throws NoExample
@@ -100,13 +104,15 @@ class ResponseFaker
         OpenApi $openApi,
         OperationAddress $operationAddress,
         string $statusCode = '200',
-        string $contentType = 'application/json',
+        array $acceptedContentTypes = ['application/json'],
         ?string $exampleName = null
     ): ResponseInterface {
         $openAPIFaker = $this->createFaker($openApi);
 
         $path   = $operationAddress->path();
         $method = $operationAddress->method();
+
+        $contentType = $this->negotiateContentType($openAPIFaker, $path, $method, $statusCode, $acceptedContentTypes);
 
         $fakeData = null !== $exampleName
             ? $openAPIFaker->mockResponseForExample($path, $method, $exampleName, $statusCode, $contentType)
@@ -116,6 +122,36 @@ class ResponseFaker
         $stream     = $this->streamFactory->createStream((string) json_encode($fakeData));
 
         return $response->withStatus((int) $statusCode)->withBody($stream)->withAddedHeader('Content-Type', $contentType);
+    }
+
+    /**
+     * @param list<string> $acceptedContentTypes
+     */
+    private function negotiateContentType(
+        OpenAPIFaker $openAPIFaker,
+        string $path,
+        string $method,
+        string $statusCode,
+        array $acceptedContentTypes
+    ): string {
+        $availableTypes = $openAPIFaker->getAvailableResponseContentTypes($path, $method, $statusCode);
+
+        if ($availableTypes === []) {
+            return $acceptedContentTypes[0] ?? 'application/json';
+        }
+
+        foreach ($acceptedContentTypes as $acceptedType) {
+            if ($acceptedType === '*/*') {
+                return $availableTypes[0];
+            }
+
+            if (in_array($acceptedType, $availableTypes, true)) {
+                return $acceptedType;
+            }
+        }
+
+        // No match found — use the first content type defined in the spec
+        return $availableTypes[0];
     }
 
     private function createFaker(OpenApi $openApi): OpenAPIFaker

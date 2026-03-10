@@ -20,8 +20,10 @@ use Throwable;
 
 use function dirname;
 use function file_get_contents;
+use function getcwd;
 use function getenv;
 use function sprintf;
+use function str_contains;
 use function str_ends_with;
 use function str_starts_with;
 
@@ -31,15 +33,21 @@ class OpenApiMockMiddlewareFactory
 {
     public function __invoke(ContainerInterface $container): MiddlewareInterface
     {
-        $projectRoot = dirname(__DIR__, 2);
+        $packageRoot = dirname(__DIR__, 2);
         /** @var array{openapi_mock?: array{spec?: string, validate_request?: bool, validate_response?: bool}} $config */
         $config      = $container->has('config') ? (array) $container->get('config') : [];
         $mockConfig  = (array) ($config['openapi_mock'] ?? []);
-        $specPath    = $mockConfig['spec'] ?? getenv('OPENAPI_SPEC') ?: $projectRoot . '/data/openapi.yaml';
+        $specPath    = $mockConfig['spec'] ?? getenv('OPENAPI_SPEC') ?: null;
 
-        // Ensure absolute path if relative and not a URL
-        if (! str_starts_with((string) $specPath, '/') && ! str_starts_with((string) $specPath, 'http')) {
-            $specPath = $projectRoot . DIRECTORY_SEPARATOR . $specPath;
+        if ($specPath === null) {
+            // No spec configured — use default from the package itself
+            $specPath = $packageRoot . '/data/openapi.yaml';
+        } elseif (! str_starts_with((string) $specPath, '/') && ! str_starts_with((string) $specPath, 'http')) {
+            // Relative paths: resolve from cwd when installed as dependency, package root otherwise
+            $resolveBase = str_contains($packageRoot, DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR)
+                ? (getcwd() ?: '.')
+                : $packageRoot;
+            $specPath = $resolveBase . DIRECTORY_SEPARATOR . $specPath;
         }
 
         $openApiMockMiddlewareConfig = new OpenApiMockMiddlewareConfig(

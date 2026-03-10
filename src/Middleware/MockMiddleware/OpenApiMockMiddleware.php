@@ -8,14 +8,21 @@ use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Request\RequestHan
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response\ResponseHandler;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Validator\RequestValidator;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Validator\ResponseValidator;
-use Exception;
+use function array_map;
+use function array_slice;
+use function explode;
 use const FILTER_VALIDATE_BOOLEAN;
 use function filter_var;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use function str_contains;
+use function str_starts_with;
+use function substr;
 use Throwable;
+use function trim;
+use function usort;
 
 class OpenApiMockMiddleware implements MiddlewareInterface
 {
@@ -25,7 +32,7 @@ class OpenApiMockMiddleware implements MiddlewareInterface
 
     public const string HEADER_OPENAPI_MOCK_EXAMPLE    = 'X-OpenApi-Mock-Example';
 
-    public const string HEADER_CONTENT_TYPE  = 'Content-Type';
+    public const string HEADER_ACCEPT = 'Accept';
 
     public const string DEFAULT_CONTENT_TYPE = 'application/json';
 
@@ -40,10 +47,10 @@ class OpenApiMockMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $isActive    = $this->isActive($request);
-        $statusCode  = $this->getStatusCode($request);
-        $contentType = $this->getContentType($request);
-        $exampleName = $this->getExample($request);
+        $isActive             = $this->isActive($request);
+        $statusCode           = $this->getStatusCode($request);
+        $acceptedContentTypes = $this->getAcceptedContentTypes($request);
+        $exampleName          = $this->getExample($request);
 
         $path = $request->getUri()->getPath();
         if ($path === '/' || $path === '/openapi.yaml' || $path === '/openapi.json') {
@@ -64,7 +71,7 @@ class OpenApiMockMiddleware implements MiddlewareInterface
             $response = $this->requestHandler->handleValidRequest(
                 $requestValidatorResult->getSchema(),
                 $requestValidatorResult->getOperationAddress(),
-                $contentType,
+                $acceptedContentTypes,
                 $statusCode,
                 $exampleName
             );
@@ -76,7 +83,10 @@ class OpenApiMockMiddleware implements MiddlewareInterface
             );
 
             if ($responseResult->getException() instanceof Throwable) {
-                return $this->responseHandler->handleInvalidResponse($responseResult->getException(), $contentType);
+                return $this->responseHandler->handleInvalidResponse(
+                    $responseResult->getException(),
+                    $acceptedContentTypes[0] ?? self::DEFAULT_CONTENT_TYPE
+                );
             }
 
             return $response;
@@ -85,7 +95,7 @@ class OpenApiMockMiddleware implements MiddlewareInterface
                 $exception,
                 isset($requestValidatorResult) ? $requestValidatorResult->getSchema() : null,
                 isset($requestValidatorResult) ? $requestValidatorResult->getOperationAddress() : null,
-                $contentType
+                $acceptedContentTypes
             );
         }
     }
@@ -104,11 +114,47 @@ class OpenApiMockMiddleware implements MiddlewareInterface
         return empty($statusCode) ? null : $statusCode;
     }
 
-    private function getContentType(ServerRequestInterface $serverRequest): string
+    /**
+     * Parse the Accept header into a list of content types ordered by quality preference.
+     *
+     * @return list<string>
+     */
+    private function getAcceptedContentTypes(ServerRequestInterface $serverRequest): array
     {
-        $contentType = $serverRequest->getHeader(self::HEADER_CONTENT_TYPE)[0] ?? self::DEFAULT_CONTENT_TYPE;
+        $accept = $serverRequest->getHeaderLine(self::HEADER_ACCEPT);
 
-        return empty($contentType) ? self::DEFAULT_CONTENT_TYPE : $contentType;
+        if ($accept === '' || $accept === '*/*') {
+            return [self::DEFAULT_CONTENT_TYPE];
+        }
+
+        /** @var list<array{type: string, quality: float}> $types */
+        $types = [];
+
+        foreach (explode(',', $accept) as $part) {
+            $part    = trim($part);
+            $quality = 1.0;
+
+            if (str_contains($part, ';')) {
+                $segments = explode(';', $part);
+                $part     = trim($segments[0]);
+                foreach (array_slice($segments, 1) as $param) {
+                    $param = trim($param);
+                    if (str_starts_with($param, 'q=')) {
+                        $quality = (float) substr($param, 2);
+                    }
+                }
+            }
+
+            if ($part !== '') {
+                $types[] = ['type' => $part, 'quality' => $quality];
+            }
+        }
+
+        usort($types, static fn (array $a, array $b): int => $b['quality'] <=> $a['quality']);
+
+        $result = array_map(static fn (array $t): string => $t['type'], $types);
+
+        return $result !== [] ? $result : [self::DEFAULT_CONTENT_TYPE];
     }
 
     private function getExample(ServerRequestInterface $serverRequest): ?string
