@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.1](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.2.0...1.2.1) (2026-03-10)
+
+### Bug Fixes
+
+* **deps:** allow "webmozart/assert": "^1.12 || ^2.0" ([6f0a0c8](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/6f0a0c842c5e76422270a52f1bbf1a4cfdf4f110))
+
 ## [1.2.0](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.1.0...1.2.0) (2026-03-10)
 
 ### Features
