@@ -14,6 +14,8 @@ use Mezzio\Router\RouterInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Psr\Cache\CacheItemPoolInterface;
 use WebProject\PhpOpenApiMockServer\Factory\OpenApiMockMiddlewareFactory;
 use WebProject\PhpOpenApiMockServer\Middleware\ForceMockActiveMiddleware;
 
@@ -40,13 +42,26 @@ $container->setFactory(ResponseInterface::class, static fn(): Closure => static 
 $container->setService(ResponseFactoryInterface::class, new ResponseFactory());
 $container->setService(StreamFactoryInterface::class, new StreamFactory());
 
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Psr\Cache\CacheItemPoolInterface;
+// Cache Configuration — isolated per process to avoid conflicts between parallel server instances
+$processCacheDir = sys_get_temp_dir() . '/openapi_mock_cache/' . getmypid();
+$container->setFactory(CacheItemPoolInterface::class, static fn(): FilesystemAdapter => new FilesystemAdapter('openapi_mock', 0, $processCacheDir));
 
-// ...
+register_shutdown_function(static function () use ($processCacheDir): void {
+    if (! is_dir($processCacheDir)) {
+        return;
+    }
 
-// Cache Configuration
-$container->setFactory(CacheItemPoolInterface::class, static fn(): FilesystemAdapter => new FilesystemAdapter('openapi_mock', 0, dirname(__DIR__) . '/data/cache'));
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($processCacheDir, FilesystemIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::CHILD_FIRST,
+    );
+
+    foreach ($iterator as $path) {
+        $path->isDir() ? rmdir($path->getPathname()) : unlink($path->getPathname());
+    }
+
+    rmdir($processCacheDir);
+});
 
 // Application Middleware
 $container->setFactory(OpenApiMockMiddleware::class, OpenApiMockMiddlewareFactory::class);
