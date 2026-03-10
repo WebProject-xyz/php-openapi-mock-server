@@ -8369,12 +8369,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "cba34aee3aaf6a27c6dfa80d9a04ced56ebfbd54"
+                "reference": "3d966c87be1b67611dbac8a4f02b35d9dcc4c060"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/cba34aee3aaf6a27c6dfa80d9a04ced56ebfbd54",
-                "reference": "cba34aee3aaf6a27c6dfa80d9a04ced56ebfbd54",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/3d966c87be1b67611dbac8a4f02b35d9dcc4c060",
+                "reference": "3d966c87be1b67611dbac8a4f02b35d9dcc4c060",
                 "shasum": ""
             },
             "conflict": {
@@ -9292,6 +9292,7 @@
                 "wpanel/wpanel4-cms": "<=4.3.1",
                 "wpcloud/wp-stateless": "<3.2",
                 "wpglobus/wpglobus": "<=1.9.6",
+                "wpmetabox/meta-box": "<5.11.2",
                 "wwbn/avideo": "<25",
                 "xataface/xataface": "<3",
                 "xpressengine/xpressengine": "<3.0.15",
@@ -9389,7 +9390,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-10T19:18:03+00:00"
+            "time": "2026-03-10T20:10:40+00:00"
         },
         {
             "name": "sebastian/cli-parser",
