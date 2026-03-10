@@ -52,7 +52,7 @@ final class BooleanFaker implements FakerInterface
             /** @var array<bool> $enums */
             $enums = $schema->enum;
 
-            return (bool) reset($enums);
+            return reset($enums);
         }
 
         return true;

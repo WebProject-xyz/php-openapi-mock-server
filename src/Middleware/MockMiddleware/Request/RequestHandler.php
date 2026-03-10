@@ -62,7 +62,7 @@ class RequestHandler
      * @throws Throwable
      */
     public function handleInvalidRequest(
-        Throwable $exception,
+        Throwable $throwable,
         ?OpenApi $openApi,
         ?OperationAddress $operationAddress,
         array $acceptedContentTypes,
@@ -70,19 +70,19 @@ class RequestHandler
     ): ResponseInterface {
         $errorContentType = $acceptedContentTypes[0] ?? 'application/json';
 
-        if (null === $openApi || null === $operationAddress) {
-            return $this->responseFaker->handleException(ValidationException::forViolations($exception), $errorContentType);
+        if (!$openApi instanceof OpenApi || !$operationAddress instanceof OperationAddress) {
+            return $this->responseFaker->handleException(ValidationException::forViolations($throwable), $errorContentType);
         }
 
         return match (true) {
-            $exception instanceof NoPath,
-            $exception instanceof FakerNoPath => $this->handleNoPathMatchedRequest($exception, $openApi, $operationAddress, $acceptedContentTypes, $pathParameters),
+            $throwable instanceof NoPath,
+            $throwable instanceof FakerNoPath => $this->handleNoPathMatchedRequest($throwable, $openApi, $operationAddress, $acceptedContentTypes, $pathParameters),
 
-            $exception instanceof InvalidSecurity => $this->handleInvalidSecurityRequest($exception, $openApi, $operationAddress, $acceptedContentTypes, $pathParameters),
+            $throwable instanceof InvalidSecurity => $this->handleInvalidSecurityRequest($throwable, $openApi, $operationAddress, $acceptedContentTypes, $pathParameters),
 
-            $exception instanceof ValidationFailed => $this->handleValidationFailedRequest($exception, $openApi, $operationAddress, $acceptedContentTypes, $pathParameters),
+            $throwable instanceof ValidationFailed => $this->handleValidationFailedRequest($throwable, $openApi, $operationAddress, $acceptedContentTypes, $pathParameters),
 
-            default => $this->responseFaker->handleException(ValidationException::forViolations($exception), $errorContentType),
+            default => $this->responseFaker->handleException(ValidationException::forViolations($throwable), $errorContentType),
         };
     }
 

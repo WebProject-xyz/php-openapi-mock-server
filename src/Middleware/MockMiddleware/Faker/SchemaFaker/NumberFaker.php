@@ -105,8 +105,6 @@ final class NumberFaker implements FakerInterface
 
         switch ($schema->format) {
             case 'int32':
-                return (int) NumberUtils::ensureRange(0, $minimum, $maximum, $exclusiveMinimum, $exclusiveMaximum, $multipleOf);
-
             case 'int64':
                 return (int) NumberUtils::ensureRange(0, $minimum, $maximum, $exclusiveMinimum, $exclusiveMaximum, $multipleOf);
 

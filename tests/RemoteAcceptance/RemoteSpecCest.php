@@ -7,7 +7,7 @@ use WebProject\PhpOpenApiMockServer\Tests\Support\AcceptanceTester;
 
 class RemoteSpecCest
 {
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $acceptanceTester): void
     {
         // Give the built-in server some time to start on the first test
         static $started = false;
@@ -17,13 +17,14 @@ class RemoteSpecCest
         }
     }
 
-    public function testGetByUsernameFromRemoteSpec(AcceptanceTester $I): void
+    public function testGetByUsernameFromRemoteSpec(AcceptanceTester $acceptanceTester): void
     {
         // Redocly openapi-template has /users/{username} under /api/v1
-        $I->sendGet('/api/v1/users/admin');
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $response = json_decode($I->grabResponse(), true);
-        $I->assertIsArray($response);
+        $acceptanceTester->sendGet('/api/v1/users/admin');
+        $acceptanceTester->seeResponseCodeIs(200);
+        $acceptanceTester->seeResponseIsJson();
+
+        $response = json_decode($acceptanceTester->grabResponse(), true);
+        $acceptanceTester->assertIsArray($response);
     }
 }

@@ -148,13 +148,13 @@ class ResponseFaker
             return $acceptedContentTypes[0] ?? 'application/json';
         }
 
-        foreach ($acceptedContentTypes as $acceptedType) {
-            if ('*/*' === $acceptedType) {
+        foreach ($acceptedContentTypes as $acceptedContentType) {
+            if ('*/*' === $acceptedContentType) {
                 return $availableTypes[0];
             }
 
-            if (in_array($acceptedType, $availableTypes, true)) {
-                return $acceptedType;
+            if (in_array($acceptedContentType, $availableTypes, true)) {
+                return $acceptedContentType;
             }
         }
 

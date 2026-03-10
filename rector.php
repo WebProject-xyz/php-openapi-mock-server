@@ -12,6 +12,7 @@ return RectorConfig::configure()
         __DIR__ . '/public',
         __DIR__ . '/src',
         __DIR__ . '/tests',
+        __DIR__ . '/bin',
     ])
     // Target PHP version
     ->withPhpVersion(PhpVersion::PHP_83)
@@ -21,8 +22,9 @@ return RectorConfig::configure()
         codeQuality: true,
         typeDeclarations: true,
         privatization: true,
-        earlyReturn: true,
         naming: true,
+        instanceOf: true,
+        earlyReturn: true,
     )
     ->withSets([
         SetList::CODING_STYLE,
@@ -37,6 +39,7 @@ return RectorConfig::configure()
     ->withPHPStanConfigs([
         __DIR__ . '/phpstan.neon',
         __DIR__ . '/vendor/slam/phpstan-laminas-framework/extension.neon',
+        __DIR__ . '/vendor/phpstan/phpstan-webmozart-assert/extension.neon',
     ])
     // Parallel processing
     ->withParallel(

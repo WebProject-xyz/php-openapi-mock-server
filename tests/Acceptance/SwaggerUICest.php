@@ -7,7 +7,7 @@ use WebProject\PhpOpenApiMockServer\Tests\Support\AcceptanceTester;
 
 class SwaggerUICest
 {
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $acceptanceTester): void
     {
         // Give the built-in server some time to start on the first test
         static $started = false;
@@ -17,28 +17,28 @@ class SwaggerUICest
         }
     }
 
-    public function testSwaggerUIHome(AcceptanceTester $I): void
+    public function testSwaggerUIHome(AcceptanceTester $acceptanceTester): void
     {
-        $I->sendGet('/');
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseContains('<title>OpenAPI Mock Server - Swagger UI</title>');
-        $I->seeResponseContains('swagger-ui-bundle.js');
-        $I->seeResponseContains('SwaggerUIStandalonePreset');
+        $acceptanceTester->sendGet('/');
+        $acceptanceTester->seeResponseCodeIs(200);
+        $acceptanceTester->seeResponseContains('<title>OpenAPI Mock Server - Swagger UI</title>');
+        $acceptanceTester->seeResponseContains('swagger-ui-bundle.js');
+        $acceptanceTester->seeResponseContains('SwaggerUIStandalonePreset');
     }
 
-    public function testSwaggerUISpecUrl(AcceptanceTester $I): void
+    public function testSwaggerUISpecUrl(AcceptanceTester $acceptanceTester): void
     {
         // Default is yaml
-        $I->sendGet('/');
-        $I->seeResponseContains("url: '/openapi.yaml'");
+        $acceptanceTester->sendGet('/');
+        $acceptanceTester->seeResponseContains("url: '/openapi.yaml'");
     }
 
-    public function testOpenApiYamlRoute(AcceptanceTester $I): void
+    public function testOpenApiYamlRoute(AcceptanceTester $acceptanceTester): void
     {
-        $I->sendGet('/openapi.yaml');
-        $I->seeResponseCodeIs(200);
+        $acceptanceTester->sendGet('/openapi.yaml');
+        $acceptanceTester->seeResponseCodeIs(200);
         // Should contain some YAML-like content (default spec)
-        $I->seeResponseContains('openapi: 3.0.0');
-        $I->seeHttpHeader('Content-Type', 'text/yaml;charset=UTF-8');
+        $acceptanceTester->seeResponseContains('openapi: 3.0.0');
+        $acceptanceTester->seeHttpHeader('Content-Type', 'text/yaml;charset=UTF-8');
     }
 }

@@ -13,13 +13,13 @@ use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 
 /** @internal */
-final class StringFaker implements FakerInterface
+final readonly class StringFaker implements FakerInterface
 {
-    private Generator $faker;
+    private Generator $generator;
 
     public function __construct()
     {
-        $this->faker = Factory::create();
+        $this->generator = Factory::create();
     }
 
     public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext): ?string
@@ -35,27 +35,27 @@ final class StringFaker implements FakerInterface
     {
         if (!empty($schema->enum)) {
             /** @var string $value */
-            $value = $this->faker->randomElement($schema->enum);
+            $value = $this->generator->randomElement($schema->enum);
 
             return $value;
         }
 
         if (null !== $schema->pattern) {
-            return $this->faker->regexify($schema->pattern);
+            return $this->generator->regexify($schema->pattern);
         }
 
         $maxLength = $schema->maxLength ?? 255;
 
         return match ($schema->format) {
-            'date'      => $this->faker->date(),
-            'date-time' => $this->faker->iso8601(),
-            'email'     => $this->faker->email(),
-            'uuid'      => $this->faker->uuid(),
-            'uri'       => $this->faker->url(),
-            'hostname'  => $this->faker->domainName(),
-            'ipv4'      => $this->faker->ipv4(),
-            'ipv6'      => $this->faker->ipv6(),
-            default     => $this->faker->text($maxLength > 5 ? $maxLength : 20),
+            'date'      => $this->generator->date(),
+            'date-time' => $this->generator->iso8601(),
+            'email'     => $this->generator->email(),
+            'uuid'      => $this->generator->uuid(),
+            'uri'       => $this->generator->url(),
+            'hostname'  => $this->generator->domainName(),
+            'ipv4'      => $this->generator->ipv4(),
+            'ipv6'      => $this->generator->ipv6(),
+            default     => $this->generator->text($maxLength > 5 ? $maxLength : 20),
         };
     }
 

@@ -8,6 +8,7 @@ namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Schema
 final readonly class FakerContext
 {
     public const string REQUEST  = 'request';
+
     public const string RESPONSE = 'response';
 
     /**

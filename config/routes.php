@@ -46,8 +46,8 @@ return static function (Application $application, MiddlewareFactory $middlewareF
             return new TextResponse($content, 200, [
                 'Content-Type' => $contentType,
             ]);
-        } catch (Throwable $e) {
-            return new TextResponse('Error loading spec: ' . $e->getMessage(), 500);
+        } catch (Throwable $throwable) {
+            return new TextResponse('Error loading spec: ' . $throwable->getMessage(), 500);
         }
     };
 
@@ -94,7 +94,7 @@ return static function (Application $application, MiddlewareFactory $middlewareF
             <script>
               window.onload = () => {
                 window.ui = SwaggerUIBundle({
-                  url: '$specUrl',
+                  url: '{$specUrl}',
                   dom_id: '#swagger-ui',
                   deepLinking: true,
                   presets: [

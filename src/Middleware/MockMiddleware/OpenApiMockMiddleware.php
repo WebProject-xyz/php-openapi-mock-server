@@ -91,9 +91,9 @@ class OpenApiMockMiddleware implements MiddlewareInterface
             }
 
             return $response;
-        } catch (Throwable $exception) {
+        } catch (Throwable $throwable) {
             return $this->requestHandler->handleInvalidRequest(
-                $exception,
+                $throwable,
                 isset($requestValidatorResult) ? $requestValidatorResult->getSchema() : null,
                 isset($requestValidatorResult) ? $requestValidatorResult->getOperationAddress() : null,
                 $acceptedContentTypes,
