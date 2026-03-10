@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.3](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.2.2...1.2.3) (2026-03-10)
+
+### Bug Fixes
+
+* **mock-server:** handle 404 and return codes for get endpoints ([90ede6a](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/90ede6ad67f853039a8482fc3c20ad4f1525dc0e))
+
 ## [1.2.2](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.2.1...1.2.2) (2026-03-10)
 
 ### Bug Fixes
