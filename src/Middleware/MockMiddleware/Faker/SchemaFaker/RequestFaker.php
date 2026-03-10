@@ -28,6 +28,7 @@ final readonly class RequestFaker
         MediaType $mediaType,
         Options $options,
         FakerRegistry $fakerRegistry,
+        FakerContext $fakerContext,
         string|null $exampleName = null
     ): array|string|bool|int|float|null {
         $examples = $mediaType->examples;
@@ -55,6 +56,6 @@ final readonly class RequestFaker
 
         Assert::isInstanceOf($schema, Schema::class);
 
-        return $fakerRegistry->getSchemaFaker()->generate($schema, $options, FakerContext::REQUEST);
+        return $fakerRegistry->getSchemaFaker()->generate($schema, $options, $fakerContext);
     }
 }

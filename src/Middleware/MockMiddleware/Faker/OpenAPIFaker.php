@@ -18,6 +18,7 @@ use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\No
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoRequest;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoResponse;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoSchema;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\FakerContext;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\FakerRegistry;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Utils\HttpMethod;
 use Webmozart\Assert\Assert;
@@ -71,48 +72,86 @@ final class OpenAPIFaker
         return $instance;
     }
 
+    /**
+     * @param array<string, mixed> $pathParameters
+     */
     public function mockRequest(
         string $path,
         string $method,
         string $contentType = 'application/json',
+        array $pathParameters = []
     ): mixed {
         $mediaType = $this->findContentForRequest($path, HttpMethod::fromString($method), $contentType);
 
-        return $this->fakerRegistry->getRequestFaker()->generate($mediaType, $this->options, $this->fakerRegistry);
+        return $this->fakerRegistry->getRequestFaker()->generate(
+            $mediaType, 
+            $this->options, 
+            $this->fakerRegistry, 
+            FakerContext::request($pathParameters)
+        );
     }
 
+    /**
+     * @param array<string, mixed> $pathParameters
+     */
     public function mockRequestForExample(
         string $path,
         string $method,
         string $exampleName,
         string $contentType = 'application/json',
+        array $pathParameters = []
     ): mixed {
         $mediaType = $this->findContentForRequest($path, HttpMethod::fromString($method), $contentType);
 
-        return $this->fakerRegistry->getRequestFaker()->generate($mediaType, $this->options, $this->fakerRegistry, $exampleName);
+        return $this->fakerRegistry->getRequestFaker()->generate(
+            $mediaType, 
+            $this->options, 
+            $this->fakerRegistry, 
+            FakerContext::request($pathParameters),
+            $exampleName
+        );
     }
 
+    /**
+     * @param array<string, mixed> $pathParameters
+     */
     public function mockResponse(
         string $path,
         string $method,
         string $statusCode = '200',
         string $contentType = 'application/json',
+        array $pathParameters = []
     ): mixed {
         $mediaType = $this->findContentForResponse($path, HttpMethod::fromString($method), $statusCode, $contentType);
 
-        return $this->fakerRegistry->getResponseFaker()->generate($mediaType, $this->options, $this->fakerRegistry);
+        return $this->fakerRegistry->getResponseFaker()->generate(
+            $mediaType, 
+            $this->options, 
+            $this->fakerRegistry, 
+            FakerContext::response($pathParameters)
+        );
     }
 
+    /**
+     * @param array<string, mixed> $pathParameters
+     */
     public function mockResponseForExample(
         string $path,
         string $method,
         string $exampleName,
         string $statusCode = '200',
         string $contentType = 'application/json',
+        array $pathParameters = []
     ): mixed {
         $mediaType = $this->findContentForResponse($path, HttpMethod::fromString($method), $statusCode, $contentType);
 
-        return $this->fakerRegistry->getResponseFaker()->generate($mediaType, $this->options, $this->fakerRegistry, $exampleName);
+        return $this->fakerRegistry->getResponseFaker()->generate(
+            $mediaType, 
+            $this->options, 
+            $this->fakerRegistry, 
+            FakerContext::response($pathParameters),
+            $exampleName
+        );
     }
 
     /** @throws NoSchema */
@@ -120,7 +159,7 @@ final class OpenAPIFaker
     {
         $schema = $this->findComponentSchema($schemaName);
 
-        return $this->fakerRegistry->getSchemaFaker()->generate($schema, $this->options);
+        return $this->fakerRegistry->getSchemaFaker()->generate($schema, $this->options, FakerContext::response());
     }
 
     /** @throws NoSchema */

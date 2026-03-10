@@ -73,7 +73,8 @@ class OpenApiMockMiddleware implements MiddlewareInterface
                 $requestValidatorResult->getOperationAddress(),
                 $acceptedContentTypes,
                 $statusCode,
-                $exampleName
+                $exampleName,
+                $requestValidatorResult->getPathParameters()
             );
 
             $responseResult = $this->responseValidator->parse(
@@ -95,7 +96,8 @@ class OpenApiMockMiddleware implements MiddlewareInterface
                 $exception,
                 isset($requestValidatorResult) ? $requestValidatorResult->getSchema() : null,
                 isset($requestValidatorResult) ? $requestValidatorResult->getOperationAddress() : null,
-                $acceptedContentTypes
+                $acceptedContentTypes,
+                isset($requestValidatorResult) ? $requestValidatorResult->getPathParameters() : []
             );
         }
     }

@@ -10,10 +10,14 @@ use Throwable;
 
 class RequestValidatorResult
 {
+    /**
+     * @param array<string, mixed> $pathParameters
+     */
     public function __construct(
         private readonly OpenApi $openApi,
         private readonly OperationAddress $operationAddress,
-        private readonly ?Throwable $throwable = null
+        private readonly ?Throwable $throwable = null,
+        private readonly array $pathParameters = []
     ) {
     }
 
@@ -30,6 +34,14 @@ class RequestValidatorResult
     public function getException(): ?Throwable
     {
         return $this->throwable;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getPathParameters(): array
+    {
+        return $this->pathParameters;
     }
 
     public function isValid(): bool

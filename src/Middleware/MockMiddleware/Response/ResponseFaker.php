@@ -35,6 +35,7 @@ class ResponseFaker
     /**
      * @param array<int, string>|string $statusCodes
      * @param list<string>              $acceptedContentTypes
+     * @param array<string, mixed>      $pathParameters
      *
      * @throws NoPath
      * @throws NoResponse
@@ -46,14 +47,15 @@ class ResponseFaker
         OperationAddress $operationAddress,
         array|string $statusCodes,
         array $acceptedContentTypes = ['application/json'],
-        ?string $exampleName = null
+        ?string $exampleName = null,
+        array $pathParameters = []
     ): ResponseInterface {
         $codes = (array) $statusCodes;
         $lastException = null;
 
         foreach ($codes as $code) {
             try {
-                return $this->mockResponse($openApi, $operationAddress, (string) $code, $acceptedContentTypes, $exampleName);
+                return $this->mockResponse($openApi, $operationAddress, (string) $code, $acceptedContentTypes, $exampleName, $pathParameters);
             } catch (NoResponse|NoPath|NoExample $th) {
                 $lastException = $th;
                 continue;
@@ -93,7 +95,8 @@ class ResponseFaker
     }
 
     /**
-     * @param list<string> $acceptedContentTypes
+     * @param list<string>         $acceptedContentTypes
+     * @param array<string, mixed> $pathParameters
      *
      * @throws NoPath
      * @throws NoResponse
@@ -105,7 +108,8 @@ class ResponseFaker
         OperationAddress $operationAddress,
         string $statusCode = '200',
         array $acceptedContentTypes = ['application/json'],
-        ?string $exampleName = null
+        ?string $exampleName = null,
+        array $pathParameters = []
     ): ResponseInterface {
         $openAPIFaker = $this->createFaker($openApi);
 
@@ -119,8 +123,8 @@ class ResponseFaker
         $contentType = $this->negotiateContentType($openAPIFaker, $path, $method, $statusCode, $acceptedContentTypes);
 
         $fakeData = null !== $exampleName
-            ? $openAPIFaker->mockResponseForExample($path, $method, $exampleName, $statusCode, $contentType)
-            : $openAPIFaker->mockResponse($path, $method, $statusCode, $contentType);
+            ? $openAPIFaker->mockResponseForExample($path, $method, $exampleName, $statusCode, $contentType, $pathParameters)
+            : $openAPIFaker->mockResponse($path, $method, $statusCode, $contentType, $pathParameters);
 
         $response = $this->responseFactory->createResponse();
         $stream     = $this->streamFactory->createStream((string) json_encode($fakeData));

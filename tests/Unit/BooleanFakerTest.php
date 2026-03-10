@@ -9,6 +9,7 @@ use Codeception\Test\Unit;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\BooleanFaker;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\FakerContext;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\FakerRegistry;
 use WebProject\PhpOpenApiMockServer\Tests\Support\UnitTester;
 
@@ -28,22 +29,23 @@ class BooleanFakerTest extends Unit
 
     public function testGenerate(): void
     {
-        $schema         = new Schema(['type' => 'boolean']);
-        $options        = new Options();
-        $booleanFaker   = new BooleanFaker();
-        $result         = $booleanFaker->generate($schema, $options, $this->fakerRegistry);
+        $schema  = new Schema(['type' => 'boolean']);
+        $options = new Options();
+
+        $booleanFaker = new BooleanFaker();
+        $result       = $booleanFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
         self::assertIsBool($result);
     }
 
     public function testGenerateStatic(): void
     {
-        $schema  = new Schema(['type' => 'boolean', 'default' => true]);
+        $schema  = new Schema(['type' => 'boolean', 'example' => false]);
         $options = new Options();
         $options->setStrategy(MockStrategy::STATIC);
 
-        $booleanFaker  = new BooleanFaker();
-        $result        = $booleanFaker->generate($schema, $options, $this->fakerRegistry);
-        self::assertTrue($result);
+        $booleanFaker = new BooleanFaker();
+        $result       = $booleanFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
+        self::assertFalse($result);
     }
 
     public function testGenerateStaticNullable(): void
@@ -52,8 +54,8 @@ class BooleanFakerTest extends Unit
         $options = new Options();
         $options->setStrategy(MockStrategy::STATIC);
 
-        $booleanFaker  = new BooleanFaker();
-        $result        = $booleanFaker->generate($schema, $options, $this->fakerRegistry);
+        $booleanFaker = new BooleanFaker();
+        $result       = $booleanFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
         self::assertNull($result);
     }
 }

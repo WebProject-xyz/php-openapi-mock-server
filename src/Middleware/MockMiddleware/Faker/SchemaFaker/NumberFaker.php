@@ -13,6 +13,7 @@ use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Utils\Number
 use function is_bool;
 use function is_numeric;
 use function mt_getrandmax;
+use function mt_rand;
 use function reset;
 
 use const PHP_INT_MAX;
@@ -20,7 +21,7 @@ use const PHP_INT_MAX;
 /** @internal */
 final class NumberFaker implements FakerInterface
 {
-    public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry): int|float|null
+    public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext): int|float|null
     {
         if ($options->getStrategy() === MockStrategy::STATIC) {
             return $this->generateStatic($schema);
@@ -37,7 +38,8 @@ final class NumberFaker implements FakerInterface
             return $schema->type === 'integer' ? (int) $value : (float) $value;
         }
 
-        $minimum    = $schema->minimum ?? -mt_getrandmax();
+        // Default to positive numbers if no minimum is specified
+        $minimum    = $schema->minimum ?? 0;
         $maximum    = $schema->maximum ?? mt_getrandmax();
         $multipleOf = $schema->multipleOf ?? 1;
 
@@ -64,7 +66,8 @@ final class NumberFaker implements FakerInterface
         }
 
         if ($schema->type === 'integer') {
-            return Base::numberBetween((int) $minimum, (int) $maximum) * $multipleOf;
+            // Base::numberBetween can return negative values if $min is not set or Faker version is old
+            return mt_rand((int) $minimum, (int) $maximum) * $multipleOf;
         }
 
         return Base::randomFloat(11, (float) $minimum, (float) $maximum) * $multipleOf;
@@ -105,14 +108,14 @@ final class NumberFaker implements FakerInterface
 
         switch ($schema->format) {
             case 'int32':
-                return (int) NumberUtils::ensureRange(-mt_getrandmax(), $minimum, $maximum, $exclusiveMinimum, $exclusiveMaximum, $multipleOf);
+                return (int) NumberUtils::ensureRange(0, $minimum, $maximum, $exclusiveMinimum, $exclusiveMaximum, $multipleOf);
 
             case 'int64':
-                return (int) NumberUtils::ensureRange(-PHP_INT_MAX, $minimum, $maximum, $exclusiveMinimum, $exclusiveMaximum, $multipleOf);
+                return (int) NumberUtils::ensureRange(0, $minimum, $maximum, $exclusiveMinimum, $exclusiveMaximum, $multipleOf);
 
             case 'float':
             case 'double':
-                return (float) NumberUtils::ensureRange(-mt_getrandmax() / 1_000_000, $minimum, $maximum, $exclusiveMinimum, $exclusiveMaximum, $multipleOf);
+                return (float) NumberUtils::ensureRange(0, $minimum, $maximum, $exclusiveMinimum, $exclusiveMaximum, $multipleOf);
 
             case null:
                 $number = NumberUtils::ensureRange(0, $minimum, $maximum, $exclusiveMinimum, $exclusiveMaximum, $multipleOf);

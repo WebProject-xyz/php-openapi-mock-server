@@ -10,5 +10,5 @@ use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 /** @internal */
 interface FakerInterface
 {
-    public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry): mixed;
+    public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext): mixed;
 }

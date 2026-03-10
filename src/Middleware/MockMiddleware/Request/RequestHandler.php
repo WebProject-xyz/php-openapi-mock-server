@@ -33,7 +33,8 @@ class RequestHandler
     }
 
     /**
-     * @param list<string> $acceptedContentTypes
+     * @param list<string>         $acceptedContentTypes
+     * @param array<string, mixed> $pathParameters
      *
      * @throws InvalidArgumentException
      */
@@ -42,19 +43,22 @@ class RequestHandler
         OperationAddress $operationAddress,
         array $acceptedContentTypes,
         ?string $statusCode = null,
-        ?string $exampleName = null
+        ?string $exampleName = null,
+        array $pathParameters = []
     ): ResponseInterface {
         return $this->responseFaker->mock(
             $openApi,
             $operationAddress,
             $statusCode ?? $this->getDefinedStatusCodes($openApi, $operationAddress),
             $acceptedContentTypes,
-            $exampleName
+            $exampleName,
+            $pathParameters
         );
     }
 
     /**
-     * @param list<string> $acceptedContentTypes
+     * @param list<string>         $acceptedContentTypes
+     * @param array<string, mixed> $pathParameters
      *
      * @throws InvalidArgumentException
      * @throws Throwable
@@ -63,7 +67,8 @@ class RequestHandler
         Throwable $exception,
         ?OpenApi $openApi,
         ?OperationAddress $operationAddress,
-        array $acceptedContentTypes
+        array $acceptedContentTypes,
+        array $pathParameters = []
     ): ResponseInterface {
         $errorContentType = $acceptedContentTypes[0] ?? 'application/json';
 
@@ -73,18 +78,19 @@ class RequestHandler
 
         return match (true) {
             $exception instanceof NoPath,
-            $exception instanceof FakerNoPath => $this->handleNoPathMatchedRequest($exception, $openApi, $operationAddress, $acceptedContentTypes),
+            $exception instanceof FakerNoPath => $this->handleNoPathMatchedRequest($exception, $openApi, $operationAddress, $acceptedContentTypes, $pathParameters),
 
-            $exception instanceof InvalidSecurity => $this->handleInvalidSecurityRequest($exception, $openApi, $operationAddress, $acceptedContentTypes),
+            $exception instanceof InvalidSecurity => $this->handleInvalidSecurityRequest($exception, $openApi, $operationAddress, $acceptedContentTypes, $pathParameters),
 
-            $exception instanceof ValidationFailed => $this->handleValidationFailedRequest($exception, $openApi, $operationAddress, $acceptedContentTypes),
+            $exception instanceof ValidationFailed => $this->handleValidationFailedRequest($exception, $openApi, $operationAddress, $acceptedContentTypes, $pathParameters),
 
             default => $this->responseFaker->handleException(ValidationException::forViolations($exception), $errorContentType),
         };
     }
 
     /**
-     * @param list<string> $acceptedContentTypes
+     * @param list<string>         $acceptedContentTypes
+     * @param array<string, mixed> $pathParameters
      *
      * @throws InvalidArgumentException
      */
@@ -92,10 +98,18 @@ class RequestHandler
         Throwable $throwable,
         OpenApi $openApi,
         OperationAddress $operationAddress,
-        array $acceptedContentTypes
+        array $acceptedContentTypes,
+        array $pathParameters = []
     ): ResponseInterface {
         try {
-            return $this->responseFaker->mock($openApi, $operationAddress, ['404', '400', '500', 'default'], $acceptedContentTypes);
+            return $this->responseFaker->mock(
+                $openApi, 
+                $operationAddress, 
+                ['404', '400', '500', 'default'], 
+                $acceptedContentTypes,
+                null,
+                $pathParameters
+            );
         } catch (Throwable $th) {
             $th = match (true) {
                 $throwable instanceof NoResponseCode => RoutingException::forNoPathAndMethodAndResponseCodeMatched($throwable),
@@ -110,7 +124,8 @@ class RequestHandler
     }
 
     /**
-     * @param list<string> $acceptedContentTypes
+     * @param list<string>         $acceptedContentTypes
+     * @param array<string, mixed> $pathParameters
      *
      * @throws InvalidArgumentException
      */
@@ -118,17 +133,26 @@ class RequestHandler
         Throwable $throwable,
         OpenApi $openApi,
         OperationAddress $operationAddress,
-        array $acceptedContentTypes
+        array $acceptedContentTypes,
+        array $pathParameters = []
     ): ResponseInterface {
         try {
-            return $this->responseFaker->mock($openApi, $operationAddress, ['401', '500', 'default'], $acceptedContentTypes);
+            return $this->responseFaker->mock(
+                $openApi, 
+                $operationAddress, 
+                ['401', '500', 'default'], 
+                $acceptedContentTypes,
+                null,
+                $pathParameters
+            );
         } catch (Throwable) {
             return $this->responseFaker->handleException(SecurityException::forUnauthorized($throwable), $acceptedContentTypes[0] ?? 'application/json');
         }
     }
 
     /**
-     * @param list<string> $acceptedContentTypes
+     * @param list<string>         $acceptedContentTypes
+     * @param array<string, mixed> $pathParameters
      *
      * @throws InvalidArgumentException
      */
@@ -136,10 +160,18 @@ class RequestHandler
         Throwable $throwable,
         OpenApi $openApi,
         OperationAddress $operationAddress,
-        array $acceptedContentTypes
+        array $acceptedContentTypes,
+        array $pathParameters = []
     ): ResponseInterface {
         try {
-            return $this->responseFaker->mock($openApi, $operationAddress, ['422', '400', '500', 'default'], $acceptedContentTypes);
+            return $this->responseFaker->mock(
+                $openApi, 
+                $operationAddress, 
+                ['422', '400', '500', 'default'], 
+                $acceptedContentTypes,
+                null,
+                $pathParameters
+            );
         } catch (Throwable) {
             return $this->responseFaker->handleException(ValidationException::forUnprocessableEntity($throwable), $acceptedContentTypes[0] ?? 'application/json');
         }

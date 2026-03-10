@@ -29,45 +29,28 @@ final class SchemaFaker
     {
     }
 
-    public function generate(Schema $schema, Options $options, FakerContext $fakerContext = FakerContext::RESPONSE): mixed
+    public function generate(Schema $schema, Options $options, FakerContext $fakerContext): mixed
     {
-        $encoded = json_encode($schema->getSerializableData());
+        $serializable = $schema->getSerializableData();
+        $encoded = json_encode($serializable);
         if ($encoded === false) {
             return [];
         }
 
-        /** @var array<mixed> $schemaData */
-        $schemaData = json_decode($encoded, true);
-        $cacheKey   = md5($encoded . $fakerContext->value);
+        $cacheKey = md5($encoded . $fakerContext->getContext());
 
         if (! isset(self::$resolvedCache[$cacheKey])) {
+            /** @var array<mixed> $schemaData */
+            $schemaData = json_decode($encoded, true);
             self::$resolvedCache[$cacheKey] = $this->resolveOfConstraints($schemaData, $options);
         }
 
-        $resolvedSchema = new Schema(self::$resolvedCache[$cacheKey]);
+        $resolvedData = self::$resolvedCache[$cacheKey];
+        $resolvedSchema = new Schema($resolvedData);
 
-        // If it's still complex after resolution (should not happen if resolveOfConstraints is thorough)
+        // If it's still complex after resolution (unlikely after resolveOfConstraints)
         // or if it's a known base type, we delegate back to the registry.
-        // BUT we must avoid calling ourselves again if the registry dispatches back to us.
-        
-        $type = $resolvedSchema->type;
-        if (is_array($type)) {
-            $type = reset($type);
-        }
-
-        if (is_string($type) && $type !== 'unknown') {
-            // This will dispatch to StringFaker, NumberFaker, etc.
-            return $this->fakerRegistry->generate($resolvedSchema, $options, $fakerContext);
-        }
-
-        // Fallback for objects with properties but no type
-        if (! empty($resolvedSchema->properties)) {
-            $data = self::$resolvedCache[$cacheKey];
-            $data['type'] = 'object';
-            return $this->fakerRegistry->generate(new Schema($data), $options, $fakerContext);
-        }
-
-        return [];
+        return $this->fakerRegistry->generate($resolvedSchema, $options, $fakerContext);
     }
 
     /**
@@ -78,37 +61,41 @@ final class SchemaFaker
     private function resolveOfConstraints(array $schema, Options $options): array
     {
         $useStaticStrategy = $options->getStrategy() === MockStrategy::STATIC;
-        $copy              = $schema;
-
-        foreach (array_keys($copy) as $key) {
-            if ($key === 'oneOf') {
-                /** @var array<mixed> $subSchema */
-                $subSchema = $useStaticStrategy ? reset($copy[$key]) : Base::randomElement($copy[$key]);
-                unset($schema['oneOf'], $copy['oneOf']);
-                $resolvedSubSchema = $this->resolveOfConstraints($subSchema, $options);
-
-                $schema = $this->merge($schema, $resolvedSubSchema);
-            } elseif ($key === 'allOf') {
-                /** @var array<array<mixed>> $allSubSchemas */
-                $allSubSchemas = $copy[$key];
-                unset($schema['allOf'], $copy['allOf']);
-                foreach (array_reverse($allSubSchemas) as $subSchema) {
-                    $resolvedSubSchema = $this->resolveOfConstraints($subSchema, $options);
-
-                    $schema = $this->merge($schema, $resolvedSubSchema);
-                }
-            } elseif ($key === 'anyOf') {
-                /** @var array<mixed> $subSchema */
-                $subSchema = $useStaticStrategy ? reset($copy[$key]) : Base::randomElement($copy[$key]);
-                unset($schema['anyOf'], $copy['anyOf']);
-                $resolvedSubSchema = $this->resolveOfConstraints($subSchema, $options);
-
-                $schema = $this->merge($schema, $resolvedSubSchema);
-            } elseif (is_array($copy[$key])) {
-                /** @var array<mixed> $subSchemaArray */
-                $subSchemaArray = $copy[$key];
-                $schema[$key]   = $this->merge($this->resolveOfConstraints($subSchemaArray, $options), (array) ($schema[$key] ?? []));
+        
+        // Handle complex constraints at the current level
+        if (isset($schema['oneOf'])) {
+            $subSchemas = $schema['oneOf'];
+            $subSchema = $useStaticStrategy ? reset($subSchemas) : Base::randomElement($subSchemas);
+            unset($schema['oneOf']);
+            $schema = $this->merge($schema, $this->resolveOfConstraints($subSchema, $options));
+        }
+        
+        if (isset($schema['anyOf'])) {
+            $subSchemas = $schema['anyOf'];
+            $subSchema = $useStaticStrategy ? reset($subSchemas) : Base::randomElement($subSchemas);
+            unset($schema['anyOf']);
+            $schema = $this->merge($schema, $this->resolveOfConstraints($subSchema, $options));
+        }
+        
+        if (isset($schema['allOf'])) {
+            $allSubSchemas = $schema['allOf'];
+            unset($schema['allOf']);
+            foreach (array_reverse($allSubSchemas) as $subSchema) {
+                $schema = $this->merge($schema, $this->resolveOfConstraints($subSchema, $options));
             }
+        }
+
+        // Recurse into properties and items if they exist
+        if (isset($schema['properties']) && is_array($schema['properties'])) {
+            foreach ($schema['properties'] as $name => $property) {
+                if (is_array($property)) {
+                    $schema['properties'][$name] = $this->resolveOfConstraints($property, $options);
+                }
+            }
+        }
+
+        if (isset($schema['items']) && is_array($schema['items'])) {
+            $schema['items'] = $this->resolveOfConstraints($schema['items'], $options);
         }
 
         return $schema;
@@ -130,9 +117,11 @@ final class SchemaFaker
             }
 
             if (! array_key_exists($key, $firstArray) || ! is_array($firstArray[$key])) {
-                $firstArray[$key] = [];
+                $firstArray[$key] = $secondArray[$key];
+                continue;
             }
 
+            // Merge nested arrays (like properties)
             /** @var array<mixed> $secondSubArray */
             $secondSubArray = $secondArray[$key];
             foreach ($secondSubArray as $bk => $bv) {

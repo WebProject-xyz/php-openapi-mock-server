@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker;
 
+use cebe\openapi\spec\Reference;
 use cebe\openapi\spec\Schema;
-use Faker\Provider\Base;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 use Webmozart\Assert\Assert;
 
+use function array_map;
 use function array_unique;
 use function count;
-
-use const SORT_REGULAR;
+use function range;
 
 /** @internal */
 final class ArrayFaker implements FakerInterface
 {
-    /** @return array<mixed> */
-    public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry): array
+    /** @return array<mixed>|null */
+    public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext): ?array
     {
         $useStaticStrategy = $options->getStrategy() === MockStrategy::STATIC;
 
@@ -31,45 +31,47 @@ final class ArrayFaker implements FakerInterface
             if ($schema->default !== null) {
                 return (array) $schema->default;
             }
-        }
 
-        $minimum = $schema->minItems ?? ($useStaticStrategy ? 1 : 0);
-        $maximum = $schema->maxItems ?? ($useStaticStrategy ? $minimum : 10);
-
-        if ($options->getMinItems() && $minimum < $options->getMinItems()) {
-            $minimum = $options->getMinItems();
-        }
-
-        if ($options->getMaxItems() && $maximum > $options->getMaxItems()) {
-            $maximum = $options->getMaxItems();
-
-            if ($minimum > $maximum) {
-                $minimum = $maximum;
+            if ($schema->nullable) {
+                return null;
             }
         }
 
-        $itemSize = $useStaticStrategy ? $minimum : Base::numberBetween($minimum, $maximum);
+        $minItems = $schema->minItems ?? ($useStaticStrategy ? 1 : 0);
+        $maxItems = $schema->maxItems ?? ($useStaticStrategy ? $minItems : 10);
 
-        $fakeData = [];
-        $itemSchema = $schema->items;
-        Assert::isInstanceOf($itemSchema, Schema::class);
+        if ($options->getMinItems() !== null && $minItems < $options->getMinItems()) {
+            $minItems = $options->getMinItems();
+        }
 
-        for ($i = 0; $i < $itemSize; ++$i) {
-            $fakeData[] = $fakerRegistry->generate($itemSchema, $options);
+        if ($options->getMaxItems() !== null && $maxItems > $options->getMaxItems()) {
+            $maxItems = $options->getMaxItems();
 
-            if (! $schema->uniqueItems) {
-                continue;
+            if ($minItems > $maxItems) {
+                $minItems = $maxItems;
             }
+        }
 
-            /** @var array<int, string|int|float|bool|array<mixed>|null> $fakeData */
-            $uniqueData = array_unique($fakeData, SORT_REGULAR);
+        $count = $useStaticStrategy ? $minItems : random_int($minItems, $maxItems);
 
-            if (count($uniqueData) > count($fakeData)) {
-                continue;
+        $itemsSchema = $schema->items;
+        if ($itemsSchema instanceof Reference) {
+            $itemsSchema = $itemsSchema->resolve();
+        }
+
+        Assert::isInstanceOf($itemsSchema, Schema::class);
+
+        $fakeData = array_map(
+            fn (): mixed => $fakerRegistry->generate($itemsSchema, $options, $fakerContext),
+            $count > 0 ? range(1, $count) : []
+        );
+
+        if ($schema->uniqueItems ?? false) {
+            $fakeData = array_unique($fakeData, SORT_REGULAR);
+            while (count($fakeData) < $count) {
+                $fakeData[] = $fakerRegistry->generate($itemsSchema, $options, $fakerContext);
+                $fakeData   = array_unique($fakeData, SORT_REGULAR);
             }
-
-            $i -= count($fakeData) - count($uniqueData);
-            $fakeData = $uniqueData;
         }
 
         return $fakeData;

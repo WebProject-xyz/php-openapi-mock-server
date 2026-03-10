@@ -7,6 +7,10 @@ namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Schema
 use cebe\openapi\spec\Schema;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 
+use function is_array;
+use function is_string;
+use function reset;
+
 /** @internal */
 final class FakerRegistry
 {
@@ -29,19 +33,15 @@ final class FakerRegistry
         ];
     }
 
-    public function generate(Schema $schema, Options $options, FakerContext $fakerContext = FakerContext::RESPONSE): mixed
+    public function generate(Schema $schema, Options $options, FakerContext $fakerContext): mixed
     {
         $fakerType = $this->resolveType($schema);
         
         if (isset($this->fakers[$fakerType->value])) {
             $faker = $this->fakers[$fakerType->value];
             
-            if ($faker instanceof ObjectFaker) {
-                return $faker->generate($schema, $options, $this, $fakerContext);
-            }
-
             if ($faker instanceof FakerInterface) {
-                return $faker->generate($schema, $options, $this);
+                return $faker->generate($schema, $options, $this, $fakerContext);
             }
         }
 

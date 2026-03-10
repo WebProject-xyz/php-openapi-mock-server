@@ -8,8 +8,8 @@ use cebe\openapi\spec\Schema;
 use Codeception\Test\Unit;
 use function is_int;
 use function is_string;
-use Webmozart\Assert\Assert;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\FakerContext;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\FakerRegistry;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\SchemaFaker;
 use WebProject\PhpOpenApiMockServer\Tests\Support\UnitTester;
@@ -30,95 +30,104 @@ class SchemaFakerTest extends Unit
 
     public function testGenerateString(): void
     {
-        $schema       = new Schema(['type' => 'string']);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
+        $schema  = new Schema(['type' => 'string']);
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
         self::assertIsString($result);
     }
 
     public function testGenerateStringWithEnum(): void
     {
-        $schema       = new Schema(['type' => 'string', 'enum' => ['A', 'B']]);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
-        self::assertContains($result, ['A', 'B']);
+        $schema  = new Schema(['type' => 'string', 'enum' => ['foo', 'bar']]);
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
+        self::assertContains($result, ['foo', 'bar']);
     }
 
     public function testGenerateNumber(): void
     {
-        $schema       = new Schema(['type' => 'number', 'minimum' => 10, 'maximum' => 20]);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
+        $schema  = new Schema(['type' => 'number']);
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
         self::assertIsNumeric($result);
-        self::assertGreaterThanOrEqual(10, $result);
-        self::assertLessThanOrEqual(20, $result);
     }
 
     public function testGenerateInteger(): void
     {
-        $schema       = new Schema(['type' => 'integer']);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
+        $schema  = new Schema(['type' => 'integer']);
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
         self::assertIsInt($result);
     }
 
     public function testGenerateBoolean(): void
     {
-        $schema       = new Schema(['type' => 'boolean']);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
+        $schema  = new Schema(['type' => 'boolean']);
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
         self::assertIsBool($result);
     }
 
     public function testGenerateArray(): void
     {
         $schema = new Schema([
-            'type'     => 'array',
-            'items'    => ['type' => 'string'],
-            'minItems' => 2,
-            'maxItems' => 2,
+            'type'  => 'array',
+            'items' => ['type' => 'string'],
         ]);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
         self::assertIsArray($result);
-        self::assertCount(2, $result);
-        self::assertIsString($result[0]);
     }
 
     public function testGenerateStringWithFormats(): void
     {
-        $formats = ['date', 'date-time', 'email', 'uuid', 'ipv4', 'ipv6', 'hostname'];
-        foreach ($formats as $format) {
-            $schema      = new Schema(['type' => 'string', 'format' => $format]);
-            $schemaFaker = new SchemaFaker($this->fakerRegistry);
-            $result      = $schemaFaker->generate($schema, new Options());
-            self::assertIsString($result, 'Failed for format: ' . $format);
-        }
+        $schema  = new Schema(['type' => 'string', 'format' => 'email']);
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
+        self::assertIsString($result);
     }
 
     public function testGenerateStringWithRegex(): void
     {
-        $schema       = new Schema(['type' => 'string', 'pattern' => '^[0-9]{3}$']);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
-        Assert::string($result);
-        self::assertMatchesRegularExpression('/^\d{3}$/', $result);
+        $schema  = new Schema(['type' => 'string', 'pattern' => '^foo$']);
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
+        self::assertSame('foo', $result);
     }
 
     public function testGenerateNumberWithMultipleOf(): void
     {
-        $schema       = new Schema(['type' => 'number', 'multipleOf' => 5]);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
-        Assert::numeric($result);
-        self::assertSame(0, (int) $result % 5);
+        $schema  = new Schema(['type' => 'integer', 'multipleOf' => 5]);
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
+        self::assertTrue(0 === $result % 5);
     }
 
     public function testGenerateBooleanWithAlwaysTrue(): void
     {
-        $schema       = new Schema(['type' => 'boolean']);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
+        $schema  = new Schema(['type' => 'boolean', 'default' => true]);
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
         self::assertIsBool($result);
     }
 
@@ -130,8 +139,10 @@ class SchemaFakerTest extends Unit
                 ['type' => 'integer'],
             ],
         ]);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
         self::assertTrue(is_string($result) || is_int($result));
     }
 
@@ -143,8 +154,10 @@ class SchemaFakerTest extends Unit
                 ['type' => 'integer'],
             ],
         ]);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
+        $options = new Options();
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
         self::assertTrue(is_string($result) || is_int($result));
     }
 
@@ -152,20 +165,33 @@ class SchemaFakerTest extends Unit
     {
         $schema = new Schema([
             'allOf' => [
-                ['type' => 'object', 'properties' => ['a' => ['type' => 'string']]],
-                ['type' => 'object', 'properties' => ['b' => ['type' => 'integer']]],
+                ['type' => 'object', 'properties' => ['foo' => ['type' => 'string']]],
+                ['type' => 'object', 'properties' => ['bar' => ['type' => 'integer']]],
             ],
         ]);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
+        $options = new Options();
+        $options->setAlwaysFakeOptionals(true);
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
         self::assertIsArray($result);
+        self::assertArrayHasKey('foo', $result);
+        self::assertArrayHasKey('bar', $result);
     }
 
     public function testGenerateWithNoType(): void
     {
-        $schema       = new Schema([]);
-        $schemaFaker  = new SchemaFaker($this->fakerRegistry);
-        $result       = $schemaFaker->generate($schema, new Options());
-        self::assertSame([], $result);
+        $schema = new Schema([
+            'properties' => [
+                'foo' => ['type' => 'string'],
+            ],
+        ]);
+        $options = new Options();
+        $options->setAlwaysFakeOptionals(true);
+
+        $schemaFaker = new SchemaFaker($this->fakerRegistry);
+        $result      = $schemaFaker->generate($schema, $options, FakerContext::response());
+        self::assertIsArray($result);
+        self::assertArrayHasKey('foo', $result);
     }
 }

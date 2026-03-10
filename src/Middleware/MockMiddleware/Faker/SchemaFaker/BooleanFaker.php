@@ -9,13 +9,12 @@ use Faker\Provider\Base;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 
-use function random_int;
 use function reset;
 
 /** @internal */
 final class BooleanFaker implements FakerInterface
 {
-    public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry): bool|null
+    public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext): ?bool
     {
         if ($options->getStrategy() === MockStrategy::STATIC) {
             return $this->generateStatic($schema);
@@ -27,15 +26,18 @@ final class BooleanFaker implements FakerInterface
     private function generateDynamic(Schema $schema): bool
     {
         if (! empty($schema->enum)) {
-            return (bool) Base::randomElement($schema->enum);
+            /** @var bool $value */
+            $value = Base::randomElement($schema->enum);
+
+            return $value;
         }
 
-        return random_int(0, 1) < 0.5;
+        return Base::randomElement([true, false]);
     }
 
-    private function generateStatic(Schema $schema): bool|null
+    private function generateStatic(Schema $schema): ?bool
     {
-        if (! empty($schema->default)) {
+        if ($schema->default !== null) {
             return (bool) $schema->default;
         }
 
@@ -48,6 +50,7 @@ final class BooleanFaker implements FakerInterface
         }
 
         if (! empty($schema->enum)) {
+            /** @var array<bool> $enums */
             $enums = $schema->enum;
 
             return (bool) reset($enums);

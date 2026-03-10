@@ -10,6 +10,7 @@ use Codeception\Test\Unit;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\ArrayFaker;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\FakerContext;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\FakerRegistry;
 use WebProject\PhpOpenApiMockServer\Tests\Support\UnitTester;
 
@@ -39,7 +40,7 @@ class ArrayFakerTest extends Unit
         $options->setStrategy(MockStrategy::STATIC);
 
         $arrayFaker  = new ArrayFaker();
-        $result      = $arrayFaker->generate($schema, $options, $this->fakerRegistry);
+        $result      = $arrayFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
         self::assertSame($example, $result);
     }
 
@@ -55,7 +56,8 @@ class ArrayFakerTest extends Unit
         $options = new Options();
 
         $arrayFaker  = new ArrayFaker();
-        $result      = $arrayFaker->generate($schema, $options, $this->fakerRegistry);
+        $result      = $arrayFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
+        self::assertIsArray($result);
         self::assertCount(3, $result);
         self::assertCount(3, array_unique($result));
     }
@@ -73,7 +75,8 @@ class ArrayFakerTest extends Unit
         $options->setMaxItems(10);
 
         $arrayFaker  = new ArrayFaker();
-        $result      = $arrayFaker->generate($schema, $options, $this->fakerRegistry);
+        $result      = $arrayFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
+        self::assertIsArray($result);
         self::assertCount(10, $result);
     }
 
@@ -88,7 +91,8 @@ class ArrayFakerTest extends Unit
         $options->setStrategy(MockStrategy::STATIC);
 
         $arrayFaker  = new ArrayFaker();
-        $result      = $arrayFaker->generate($schema, $options, $this->fakerRegistry);
+        $result      = $arrayFaker->generate($schema, $options, $this->fakerRegistry, FakerContext::response());
+        self::assertIsArray($result);
         self::assertCount(5, $result);
     }
 }

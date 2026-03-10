@@ -13,12 +13,13 @@ use function array_merge;
 use function array_rand;
 use function count;
 use function in_array;
+use function is_array;
 
 /** @internal */
 final class ObjectFaker implements FakerInterface
 {
     /** @return array<string, mixed> */
-    public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext = FakerContext::RESPONSE): array
+    public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext): array
     {
         $useStaticStrategy = $options->getStrategy() === MockStrategy::STATIC;
 
@@ -44,13 +45,25 @@ final class ObjectFaker implements FakerInterface
             $countKeys = count($optionalKeys);
             $count     = random_int(0, $countKeys);
             if ($count > 0) {
-                $selectedOptionalKeys = (array) array_rand(array_flip($optionalKeys), $count);
+                $indices = (array) array_rand($optionalKeys, $count);
+                foreach ($indices as $index) {
+                    $selectedOptionalKeys[] = $optionalKeys[$index];
+                }
             }
         }
 
         $allPropertyKeys = array_merge($requiredKeys, $selectedOptionalKeys);
+        
+        $pathParameters = $fakerContext->getPathParameters();
+        // Path parameters should ALWAYS be included if they match a property
+        foreach (array_keys($pathParameters) as $paramName) {
+            if (in_array($paramName, $propertyKeys, true) && !in_array($paramName, $allPropertyKeys, true)) {
+                $allPropertyKeys[] = $paramName;
+            }
+        }
 
-        $fakeData = [];
+        $fakeData       = [];
+
         /** @var Schema $property */
         foreach ($schema->properties as $key => $property) {
             if ($fakerContext->isRequest() && ($property->readOnly ?? false)) {
@@ -67,6 +80,26 @@ final class ObjectFaker implements FakerInterface
 
             if (! $property instanceof Schema) {
                 $property = new Schema((array) $property);
+            }
+
+            // If we have a path parameter for this key, use it (if it's not a request context)
+            if (! $fakerContext->isRequest() && isset($pathParameters[$key])) {
+                $val = $pathParameters[$key];
+                $type = $property->type;
+                if (is_array($type)) {
+                    $type = reset($type);
+                }
+                
+                if ($type === 'integer') {
+                    $val = (int) $val;
+                } elseif ($type === 'number') {
+                    $val = (float) $val;
+                } elseif ($type === 'boolean') {
+                    $val = filter_var($val, FILTER_VALIDATE_BOOLEAN);
+                }
+                
+                $fakeData[$key] = $val;
+                continue;
             }
 
             $fakeData[$key] = $fakerRegistry->generate($property, $options, $fakerContext);

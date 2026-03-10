@@ -37,19 +37,31 @@ class RequestValidator
                     );
                 }
 
-                return new RequestValidatorResult($schema, $operationAddress);
+                $pathParams = $operationAddress->parseParams($serverRequest->getUri()->getPath());
+
+                return new RequestValidatorResult($schema, $operationAddress, null, $pathParams);
             } catch (Throwable $th) {
                 $schema           = $serverRequestValidator->getSchema();
                 $operationAddress = $this->findOperationAddress($schema, $serverRequest);
+                $pathParams       = [];
+                try {
+                    $pathParams = $operationAddress->parseParams($serverRequest->getUri()->getPath());
+                } catch (Throwable) {
+                }
 
-                return new RequestValidatorResult($schema, $operationAddress, $th);
+                return new RequestValidatorResult($schema, $operationAddress, $th, $pathParams);
             }
         }
 
         $schema           = $serverRequestValidator->getSchema();
         $operationAddress = $this->findOperationAddress($schema, $serverRequest);
+        $pathParams       = [];
+        try {
+            $pathParams = $operationAddress->parseParams($serverRequest->getUri()->getPath());
+        } catch (Throwable) {
+        }
 
-        return new RequestValidatorResult($schema, $operationAddress);
+        return new RequestValidatorResult($schema, $operationAddress, null, $pathParams);
     }
 
     private function findOperationAddress(OpenApi $openApi, ServerRequestInterface $serverRequest): OperationAddress
