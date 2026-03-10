@@ -12,4 +12,4 @@ coverage:
 extensions:
     enabled:
         - Codeception\Extension\RunProcess:
-            - OPENAPI_SPEC=data/openapi.json php -S localhost:8081 -t public
+            - OPENAPI_SPEC=data/openapi.json php -S localhost:8081 -t public public/index.php

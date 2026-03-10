@@ -12,4 +12,4 @@ coverage:
 extensions:
     enabled:
         - Codeception\Extension\RunProcess:
-            - OPENAPI_SPEC=https://raw.githubusercontent.com/Redocly/openapi-template/gh-pages/openapi.yaml php -S localhost:8082 -t public
+            - OPENAPI_SPEC=https://raw.githubusercontent.com/Redocly/openapi-template/gh-pages/openapi.yaml php -S localhost:8082 -t public public/index.php

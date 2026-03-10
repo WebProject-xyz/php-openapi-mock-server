@@ -44,7 +44,4 @@ COPY --from=composer_build /app/vendor /app/vendor
 COPY . /app
 
 # Set default environment variables
-ENV OPENAPI_SPEC=data/openapi.yaml
-
-# Expose port 80
-EXPOSE 80
+ENV OPENAPI_SPEC=/app/data/openapi.yaml

@@ -12,4 +12,4 @@ coverage:
 extensions:
     enabled:
         - Codeception\Extension\RunProcess:
-            - OPENAPI_SPEC=https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/non-existent.yaml php -S localhost:8083 -t public
+            - OPENAPI_SPEC=https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/non-existent.yaml php -S localhost:8083 -t public public/index.php

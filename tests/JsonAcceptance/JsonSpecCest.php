@@ -26,4 +26,19 @@ class JsonSpecCest
         $response = json_decode($acceptanceTester->grabResponse(), true);
         $acceptanceTester->assertIsArray($response);
     }
+
+    public function testSwaggerUIPointsToJson(AcceptanceTester $acceptanceTester): void
+    {
+        $acceptanceTester->sendGet('/');
+        $acceptanceTester->seeResponseCodeIs(200);
+        $acceptanceTester->seeResponseContains("url: '/openapi.json'");
+    }
+
+    public function testOpenApiJsonRoute(AcceptanceTester $acceptanceTester): void
+    {
+        $acceptanceTester->sendGet('/openapi.json');
+        $acceptanceTester->seeResponseCodeIs(200);
+        $acceptanceTester->seeHttpHeader('Content-Type', 'application/json');
+        $acceptanceTester->seeResponseContains('"openapi": "3.0.0"');
+    }
 }

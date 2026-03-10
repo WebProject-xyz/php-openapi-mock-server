@@ -25,22 +25,23 @@ return static function (Application $application, MiddlewareFactory $middlewareF
 
     $specHandler = static function (ServerRequestInterface $serverRequest) use ($specPath): ResponseInterface {
         try {
-            $path = $specPath;
+            $path = (string) $specPath;
 
-            if (str_starts_with((string) $path, 'http')) {
+            if (str_starts_with($path, 'http')) {
                 $content = file_get_contents($path, false, RemoteSpecificationLoader::createStreamContext());
             } else {
-                $content = file_exists((string) $path) ? file_get_contents((string) $path) : null;
+                $content = file_exists($path) ? file_get_contents($path) : null;
             }
 
             if ($content === false || $content === null) {
                 return new TextResponse('OpenAPI spec not found at ' . $path, 404);
             }
 
-            $contentType = str_ends_with((string) $path, '.json') ? 'application/json' : 'text/yaml';
-            if (str_ends_with($serverRequest->getUri()->getPath(), '.json')) {
-                $contentType = 'application/json';
-            }
+            $requestedPath = $serverRequest->getUri()->getPath();
+            $isJsonRequest = str_ends_with($requestedPath, '.json');
+
+            // Serve the correct Content-Type for the requested route.
+            $contentType = $isJsonRequest ? 'application/json' : 'text/yaml';
 
             return new TextResponse($content, 200, [
                 'Content-Type' => $contentType,
@@ -50,9 +51,9 @@ return static function (Application $application, MiddlewareFactory $middlewareF
         }
     };
 
-    // Route to serve the raw OpenAPI specification
-    $application->get('/openapi.yaml', $specHandler);
-    $application->get('/openapi.json', $specHandler);
+    // Route registrations
+    $application->get('/openapi.yaml', $specHandler, 'openapi_yaml');
+    $application->get('/openapi.json', $specHandler, 'openapi_json');
 
     // Swagger UI at root
     $application->get('/', static function (ServerRequestInterface $serverRequest) use ($specPath): ResponseInterface {
@@ -64,6 +65,12 @@ return static function (Application $application, MiddlewareFactory $middlewareF
                 'spec_path'    => $specPath,
             ]);
         }
+
+        // Determine the correct spec URL for Swagger UI
+        $path = (string) $specPath;
+        $parsedPath = parse_url($path, PHP_URL_PATH) ?: $path;
+        $extension = strtolower(pathinfo($parsedPath, PATHINFO_EXTENSION));
+        $specUrl = $extension === 'json' ? '/openapi.json' : '/openapi.yaml';
 
         $html = <<<HTML
 <!DOCTYPE html>
@@ -87,12 +94,12 @@ return static function (Application $application, MiddlewareFactory $middlewareF
 <script>
   window.onload = () => {
     window.ui = SwaggerUIBundle({
-      url: '/openapi.yaml',
+      url: '$specUrl',
       dom_id: '#swagger-ui',
       deepLinking: true,
       presets: [
         SwaggerUIBundle.presets.apis,
-        SwaggerStandalonePreset
+        SwaggerUIStandalonePreset
       ],
       plugins: [
         SwaggerUIBundle.plugins.DownloadUrl
@@ -105,5 +112,5 @@ return static function (Application $application, MiddlewareFactory $middlewareF
 </html>
 HTML;
         return new HtmlResponse($html);
-    });
+    }, 'home');
 };
