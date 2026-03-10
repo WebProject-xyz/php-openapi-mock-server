@@ -1,58 +1,91 @@
 {
-    "name": "webproject/php-openapi-mock-server",
-    "description": "A lightweight PHP OpenAPI mock server using Mezzio and PSR-15 middleware.",
-    "type": "project",
-    "license": "MIT",
-    "require": {
-        "php": "^8.3",
-        "cschindl/php-openapi-mock-middleware": "*",
-        "laminas/laminas-diactoros": "^3.5",
-        "laminas/laminas-servicemanager": "^3.22",
-        "mezzio/mezzio": "^3.21",
-        "mezzio/mezzio-fastroute": "^3.11",
-        "mezzio/mezzio-problem-details": "^1.19"
-    },
-    "require-dev": {
-        "codeception/codeception": "^5.3",
-        "codeception/module-asserts": "^3.3",
-        "codeception/module-phpbrowser": "^4.0",
-        "codeception/module-rest": "^3.4",
-        "codeception/module-webdriver": "*",
-        "friendsofphp/php-cs-fixer": "^3.94.1",
-        "phpstan/extension-installer": "^1.4.3",
-        "phpstan/phpstan": "^2.1.39",
-        "phpstan/phpstan-webmozart-assert": "^2.0.0",
-        "roave/security-advisories": "dev-master",
-        "slam/phpstan-laminas-framework": "^2.0",
-        "webproject-xyz/codeception-module-ai-reporter": "^1.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "WebProject\\PhpOpenApiMockServer\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "WebProject\\PhpOpenApiMockServer\\Tests\\": "tests/"
-        }
-    },
-    "config": {
-        "platform": {
-            "php": "8.3.0"
-        },
-        "allow-plugins": {
-            "composer/package-versions-deprecated": true,
-            "phpstan/extension-installer": true
-        },
-        "sort-packages": true,
-        "optimize-autoloader": true
-    },
-    "scripts": {
-        "cs:check": "php-cs-fixer fix --allow-risky=yes --sequential --dry-run --diff",
-        "cs:fix": "php-cs-fixer fix --allow-risky=yes --sequential",
-        "stan": "phpstan analyse --no-progress",
-        "test": "codecept run --report",
-        "test:coverage": "XDEBUG_MODE=coverage codecept run --coverage --coverage-xml=coverage.xml --xml --report",
-        "test:build": "codecept build"
+  "name": "webproject-xyz/php-openapi-mock-server",
+  "description": "A lightweight PHP OpenAPI mock server using Mezzio and PSR-15 middleware.",
+  "license": "MIT",
+  "type": "library",
+  "homepage": "https://www.webproject.xyz",
+  "authors": [
+    {
+      "name": "Benjamin Fahl",
+      "email": "ben+github@webproject.xyz",
+      "role": "developer"
     }
+  ],
+  "require": {
+    "php": "~8.3.0 || ~8.4.0 || ~8.5.0",
+    "ext-random": "*",
+    "devizzent/cebe-php-openapi": "^1.1",
+    "fakerphp/faker": "^1.24.1",
+    "laminas/laminas-diactoros": "^3.8",
+    "laminas/laminas-servicemanager": "^3.24",
+    "league/openapi-psr7-validator": "^0.22",
+    "mezzio/mezzio": "^3.27",
+    "mezzio/mezzio-fastroute": "^3.14",
+    "mezzio/mezzio-problem-details": "^1.19",
+    "mezzio/mezzio-router": "^4.2",
+    "psr/cache": "^3.0",
+    "psr/container": "^1.1",
+    "psr/http-factory": "^1.1",
+    "psr/http-message": "^2.0",
+    "psr/http-server-handler": "^1.0",
+    "psr/http-server-middleware": "^1.0",
+    "symfony/cache": "^7.4",
+    "webmozart/assert": "^1.12"
+  },
+  "require-dev": {
+    "codeception/c3": "^2.9",
+    "codeception/codeception": "^5.3.5",
+    "codeception/module-asserts": "^3.3",
+    "codeception/module-phpbrowser": "^4.0",
+    "codeception/module-rest": "^3.4.3",
+    "codeception/module-webdriver": "^4.0.5",
+    "friendsofphp/php-cs-fixer": "^3.94.2",
+    "maglnet/composer-require-checker": "^4.20",
+    "phpbench/phpbench": "^1.5",
+    "phpro/grumphp": "^2.19",
+    "phpstan/extension-installer": "^1.4.3",
+    "phpstan/phpstan": "^2.1.40",
+    "phpstan/phpstan-webmozart-assert": "^2.0.0",
+    "rector/rector": "^2.3",
+    "roave/security-advisories": "dev-master",
+    "slam/phpstan-laminas-framework": "^2.0",
+    "webproject-xyz/codeception-module-ai-reporter": "^1.0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "WebProject\\PhpOpenApiMockServer\\": "src/"
+    },
+    "exclude-from-classmap": [
+      "vendor/cebe/php-openapi/src/"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "WebProject\\PhpOpenApiMockServer\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "codeception/c3": true,
+      "composer/package-versions-deprecated": true,
+      "phpro/grumphp": true,
+      "phpstan/extension-installer": true
+    },
+    "optimize-autoloader": true,
+    "platform": {
+      "php": "8.3.0"
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "bench": "php -d opcache.enable_cli=1 vendor/bin/phpbench run tests/Benchmark --report=default",
+    "cs:check": "php-cs-fixer fix --allow-risky=yes --sequential --dry-run --diff",
+    "cs:fix": "php-cs-fixer fix --allow-risky=yes --sequential",
+    "rector": "rector process --dry-run",
+    "rector:fix": "rector process",
+    "stan": "phpstan analyse --no-progress",
+    "test": "php -d opcache.enable_cli=1 vendor/bin/codecept run --report",
+    "test:build": "codecept build",
+    "test:coverage": "XDEBUG_MODE=coverage codecept run --coverage --coverage-xml=coverage.xml --xml --report"
+  }
 }

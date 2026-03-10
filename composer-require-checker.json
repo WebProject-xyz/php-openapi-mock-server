@@ -1,0 +1,30 @@
+{
+    "php-core-extensions": [
+        "core",
+        "date",
+        "dom",
+        "filter",
+        "gd",
+        "hash",
+        "iconv",
+        "json",
+        "libxml",
+        "mbstring",
+        "openssl",
+        "pcre",
+        "spl",
+        "standard",
+        "tokenizer",
+        "xml",
+        "zlib",
+        "curl",
+        "fileinfo"
+    ],
+    "symbol-whitelist": [
+    ],
+    "scan-files": [
+        "src/**/*.php",
+        "config/*.php",
+        "public/index.php"
+    ]
+}

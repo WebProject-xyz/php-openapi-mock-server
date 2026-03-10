@@ -1,0 +1,15 @@
+actor: AcceptanceTester
+modules:
+    enabled:
+        - PhpBrowser:
+            url: http://localhost:8080
+        - REST:
+            depends: PhpBrowser
+        - Asserts
+coverage:
+    remote: true
+    c3_url: http://localhost:8080/index.php
+extensions:
+    enabled:
+        - Codeception\Extension\RunProcess:
+            - php -S localhost:8080 -t public

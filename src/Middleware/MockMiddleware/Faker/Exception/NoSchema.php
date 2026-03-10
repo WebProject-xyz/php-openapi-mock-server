@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception;
+
+use Exception;
+
+use function sprintf;
+
+final class NoSchema extends Exception
+{
+    public string $name;
+
+    public static function forZeroComponents(): self
+    {
+        return new self('OpenAPI spec does not have any components.');
+    }
+
+    public static function forComponentName(string $name): self
+    {
+        return new self(sprintf('OpenAPI spec does not have any component schema named %s.', $name));
+    }
+}

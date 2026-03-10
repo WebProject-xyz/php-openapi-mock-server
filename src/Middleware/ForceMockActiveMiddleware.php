@@ -8,12 +8,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\OpenApiMockMiddleware;
+
 class ForceMockActiveMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (!$request->hasHeader('X-OpenApi-Mock-Active')) {
-            $request = $request->withHeader('X-OpenApi-Mock-Active', 'true');
+        if (!$request->hasHeader(OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_ACTIVE)) {
+            $request = $request->withHeader(OpenApiMockMiddleware::HEADER_OPENAPI_MOCK_ACTIVE, 'true');
         }
 
         return $handler->handle($request);

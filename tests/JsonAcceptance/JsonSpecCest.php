@@ -7,7 +7,7 @@ use WebProject\PhpOpenApiMockServer\Tests\Support\AcceptanceTester;
 
 class JsonSpecCest
 {
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $acceptanceTester): void
     {
         // Give the built-in server some time to start on the first test
         static $started = false;
@@ -17,12 +17,13 @@ class JsonSpecCest
         }
     }
 
-    public function testGetProductsFromJsonSpec(AcceptanceTester $I): void
+    public function testGetProductsFromJsonSpec(AcceptanceTester $acceptanceTester): void
     {
-        $I->sendGet('/products');
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $response = json_decode($I->grabResponse(), true);
-        $I->assertIsArray($response);
+        $acceptanceTester->sendGet('/products');
+        $acceptanceTester->seeResponseCodeIs(200);
+        $acceptanceTester->seeResponseIsJson();
+
+        $response = json_decode($acceptanceTester->grabResponse(), true);
+        $acceptanceTester->assertIsArray($response);
     }
 }

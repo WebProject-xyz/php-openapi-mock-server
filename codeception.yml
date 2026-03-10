@@ -1,72 +1,11 @@
 namespace: WebProject\PhpOpenApiMockServer\Tests
 support_namespace: Support
-# suite config
-suites:
-    Acceptance:
-        actor: AcceptanceTester
-        path: Acceptance
-        extensions:
-          enabled:
-            - Codeception\Extension\RunProcess:
-                - php -S localhost:8080 -t public
-        modules:
-            enabled:
-                - PhpBrowser:
-                    url: http://localhost:8080
-                - REST:
-                    depends: PhpBrowser
-                - Asserts
-    JsonAcceptance:
-        actor: AcceptanceTester
-        path: JsonAcceptance
-        extensions:
-          enabled:
-            - Codeception\Extension\RunProcess:
-                - OPENAPI_SPEC=data/openapi.json php -S localhost:8081 -t public
-        modules:
-            enabled:
-                - PhpBrowser:
-                    url: http://localhost:8081
-                - REST:
-                    depends: PhpBrowser
-                - Asserts
-    RemoteAcceptance:
-        actor: AcceptanceTester
-        path: RemoteAcceptance
-        extensions:
-          enabled:
-            - Codeception\Extension\RunProcess:
-                - OPENAPI_SPEC=https://raw.githubusercontent.com/Redocly/openapi-template/gh-pages/openapi.yaml php -S localhost:8082 -t public
-        modules:
-            enabled:
-                - PhpBrowser:
-                    url: http://localhost:8082
-                - REST:
-                    depends: PhpBrowser
-                - Asserts
-    FailureAcceptance:
-        actor: AcceptanceTester
-        path: FailureAcceptance
-        extensions:
-          enabled:
-            - Codeception\Extension\RunProcess:
-                - OPENAPI_SPEC=https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/non-existent.yaml php -S localhost:8083 -t public
-        modules:
-            enabled:
-                - PhpBrowser:
-                    url: http://localhost:8083
-                - REST:
-                    depends: PhpBrowser
-                - Asserts
+
+# Standard suites are now defined in tests/*.suite.yml
 
 extensions:
     enabled:
         - Codeception\Extension\RunFailed
-        - Codeception\Extension\RunProcess:
-            - php -S localhost:8080 -t public
-            - OPENAPI_SPEC=data/openapi.json php -S localhost:8081 -t public
-            - OPENAPI_SPEC=https://raw.githubusercontent.com/Redocly/openapi-template/gh-pages/openapi.yaml php -S localhost:8082 -t public
-            - OPENAPI_SPEC=https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/non-existent.yaml php -S localhost:8083 -t public
         - WebProject\Codeception\Module\AiReporter\Extension\AiReporter:
               format: both
               output: tests/_output
@@ -95,6 +34,9 @@ settings:
 coverage:
   enabled: true
   include:
-    - public/*
+    - src/*
   exclude:
     - tests/*
+    - src/Middleware/MockMiddleware/Faker/Utils/*
+    - src/Middleware/MockMiddleware/Exception/*
+    - src/Middleware/MockMiddleware/Faker/Exception/*

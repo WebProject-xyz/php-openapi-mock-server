@@ -1,17 +1,15 @@
 parameters:
-    level: 5
+    level: 8
+    treatPhpDocTypesAsCertain: false
     paths:
         - src
         - public
         - tests
+    bootstrapFiles:
+        - vendor/autoload.php
     laminasframework:
         serviceManagerLoader: tests/phpstan-container.php
     excludePaths:
         analyse:
-            - tests/Support/_generated/AcceptanceTesterActions.php
-    ignoreErrors:
-        -
-            message: '~Parameter \#1 \$config of method Laminas\\ServiceManager\\ServiceManager::configure\(\) expects .*~'
-            paths:
-                - config/container.php
-    reportUnmatchedIgnoredErrors: false
+            - tests/Support/_generated/*
+

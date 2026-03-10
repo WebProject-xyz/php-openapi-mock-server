@@ -8,7 +8,7 @@ use WebProject\PhpOpenApiMockServer\Tests\Support\AcceptanceTester;
 
 class MockServerCest
 {
-    public function _before(AcceptanceTester $I): void
+    public function _before(AcceptanceTester $acceptanceTester): void
     {
         // Give the built-in server some time to start on the first test
         static $started = false;
@@ -18,41 +18,43 @@ class MockServerCest
         }
     }
 
-    public function testGetUsers(AcceptanceTester $I): void
+    public function testGetUsers(AcceptanceTester $acceptanceTester): void
     {
-        $I->sendGet('/users');
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
+        $acceptanceTester->sendGet('/users');
+        $acceptanceTester->seeResponseCodeIs(200);
+        $acceptanceTester->seeResponseIsJson();
         // The middleware generates random data, sometimes empty arrays if it's optional
         // or just weirdly structured.
-        $I->assertTrue(is_array(json_decode($I->grabResponse(), true)));
+        $acceptanceTester->assertTrue(is_array(json_decode($acceptanceTester->grabResponse(), true)));
     }
 
-    public function testGetUserById(AcceptanceTester $I): void
+    public function testGetUserById(AcceptanceTester $acceptanceTester): void
     {
-        $I->sendGet('/users/1');
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $response = json_decode($I->grabResponse(), true);
+        $acceptanceTester->sendGet('/users/1');
+        $acceptanceTester->seeResponseCodeIs(200);
+        $acceptanceTester->seeResponseIsJson();
+
+        $response = json_decode($acceptanceTester->grabResponse(), true);
         // It should be an object (array in PHP)
-        $I->assertIsArray($response);
+        $acceptanceTester->assertIsArray($response);
     }
 
-    public function testNotFoundInSpecButExistsInMezzio(AcceptanceTester $I): void
+    public function testNotFoundInSpecButExistsInMezzio(AcceptanceTester $acceptanceTester): void
     {
-        // We forced X-OpenApi-Mock-Active to true, so the middleware will intercept this
-        // and return its own 404 because it's not in the spec.
-        $I->sendGet('/');
-        $I->seeResponseCodeIs(404);
-        $I->seeResponseContainsJson(['type' => 'NO_PATH_MATCHED_ERROR']);
+        // Root path is now allowed to bypass mock processing to show Swagger UI or status JSON
+        $acceptanceTester->haveHttpHeader('Accept', 'application/json');
+        $acceptanceTester->sendGet('/');
+        $acceptanceTester->seeResponseCodeIs(200);
+        $acceptanceTester->seeResponseContainsJson(['message' => 'OpenAPI Mock Server is running!']);
     }
 
-    public function testDisableMockViaHeader(AcceptanceTester $I): void
+    public function testDisableMockViaHeader(AcceptanceTester $acceptanceTester): void
     {
         // If we explicitly set it to false, it should fall through to Mezzio's root handler
-        $I->haveHttpHeader('X-OpenApi-Mock-Active', 'false');
-        $I->sendGet('/');
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseContainsJson(['message' => 'OpenAPI Mock Server is running!']);
+        $acceptanceTester->haveHttpHeader('X-OpenApi-Mock-Active', 'false');
+        $acceptanceTester->haveHttpHeader('Accept', 'application/json');
+        $acceptanceTester->sendGet('/');
+        $acceptanceTester->seeResponseCodeIs(200);
+        $acceptanceTester->seeResponseContainsJson(['message' => 'OpenAPI Mock Server is running!']);
     }
 }

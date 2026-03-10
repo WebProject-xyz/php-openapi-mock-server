@@ -1,9 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 use Mezzio\Application;
 use Mezzio\MiddlewareFactory;
 use Psr\Container\ContainerInterface;
+
+if (file_exists(__DIR__ . '/../c3.php')) {
+    require __DIR__ . '/../c3.php';
+}
 
 require __DIR__ . '/../vendor/autoload.php';
 
