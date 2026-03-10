@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.0](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.0.0...1.1.0) (2026-03-10)
+
+### Features
+
+* support usage as Composer dependency (bin script, path resolution, Accept header) ([42968d0](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/42968d04c67e805e265a4ba13dece692c4a94d09))
+
 ## 1.0.0 (2026-03-10)
 
 ### Features
