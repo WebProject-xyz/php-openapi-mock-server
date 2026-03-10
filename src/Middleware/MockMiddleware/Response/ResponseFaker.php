@@ -112,6 +112,10 @@ class ResponseFaker
         $path   = $operationAddress->path();
         $method = $operationAddress->method();
 
+        if ($this->isNoContentResponse($openAPIFaker, $path, $method, $statusCode)) {
+            return $this->responseFactory->createResponse((int) $statusCode);
+        }
+
         $contentType = $this->negotiateContentType($openAPIFaker, $path, $method, $statusCode, $acceptedContentTypes);
 
         $fakeData = null !== $exampleName
@@ -152,6 +156,22 @@ class ResponseFaker
 
         // No match found — use the first content type defined in the spec
         return $availableTypes[0];
+    }
+
+    /**
+     * Check if the response exists in the spec but defines no content (e.g. 204 No Content).
+     */
+    private function isNoContentResponse(
+        OpenAPIFaker $openAPIFaker,
+        string $path,
+        string $method,
+        string $statusCode,
+    ): bool {
+        if (! $openAPIFaker->hasResponse($path, $method, $statusCode)) {
+            return false;
+        }
+
+        return $openAPIFaker->getAvailableResponseContentTypes($path, $method, $statusCode) === [];
     }
 
     private function createFaker(OpenApi $openApi): OpenAPIFaker

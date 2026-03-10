@@ -48,6 +48,23 @@ class MockServerCest
         $acceptanceTester->seeResponseContainsJson(['message' => 'OpenAPI Mock Server is running!']);
     }
 
+    public function testPostReturns202Accepted(AcceptanceTester $acceptanceTester): void
+    {
+        $acceptanceTester->haveHttpHeader('Content-Type', 'application/json');
+        $acceptanceTester->sendPost('/users/1/tasks', ['title' => 'My Task']);
+        $acceptanceTester->seeResponseCodeIs(202);
+        $acceptanceTester->seeResponseIsJson();
+
+        $response = json_decode($acceptanceTester->grabResponse(), true);
+        $acceptanceTester->assertIsArray($response);
+    }
+
+    public function testDeleteReturns204NoContent(AcceptanceTester $acceptanceTester): void
+    {
+        $acceptanceTester->sendDelete('/users/1/tasks');
+        $acceptanceTester->seeResponseCodeIs(204);
+    }
+
     public function testDisableMockViaHeader(AcceptanceTester $acceptanceTester): void
     {
         // If we explicitly set it to false, it should fall through to Mezzio's root handler

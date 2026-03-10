@@ -41,6 +41,42 @@ paths:
               example:
                 id: 1
                 name: Alice
+  /users/{id}/tasks:
+    post:
+      summary: Create a task for a user (async)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+      responses:
+        '202':
+          description: Task accepted for processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskAccepted'
+              example:
+                taskId: abc-123
+                status: pending
+    delete:
+      summary: Delete all tasks for a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tasks deleted successfully
 components:
   schemas:
     User:
@@ -49,4 +85,18 @@ components:
         id:
           type: integer
         name:
+          type: string
+    TaskInput:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
+    TaskAccepted:
+      type: object
+      properties:
+        taskId:
+          type: string
+        status:
           type: string

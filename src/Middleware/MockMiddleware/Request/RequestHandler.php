@@ -5,21 +5,26 @@ declare(strict_types=1);
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Request;
 
 use cebe\openapi\spec\OpenApi;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\RoutingException;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\SecurityException;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\ValidationException;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response\ResponseFaker;
-use Exception;
-use InvalidArgumentException;
 use League\OpenAPIValidation\PSR7\Exception\NoOperation;
 use League\OpenAPIValidation\PSR7\Exception\NoPath;
 use League\OpenAPIValidation\PSR7\Exception\NoResponseCode;
 use League\OpenAPIValidation\PSR7\Exception\Validation\InvalidSecurity;
 use League\OpenAPIValidation\PSR7\Exception\ValidationFailed;
 use League\OpenAPIValidation\PSR7\OperationAddress;
+use League\OpenAPIValidation\PSR7\SpecFinder;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\RoutingException;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\SecurityException;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\ValidationException;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoPath as FakerNoPath;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response\ResponseFaker;
+
+use function array_keys;
+use function preg_match;
+use function sort;
+
+use InvalidArgumentException;
 
 class RequestHandler
 {
@@ -39,7 +44,13 @@ class RequestHandler
         ?string $statusCode = null,
         ?string $exampleName = null
     ): ResponseInterface {
-        return $this->responseFaker->mock($openApi, $operationAddress, $statusCode ?? ['200', '201'], $acceptedContentTypes, $exampleName);
+        return $this->responseFaker->mock(
+            $openApi,
+            $operationAddress,
+            $statusCode ?? $this->getSuccessStatusCodes($openApi, $operationAddress),
+            $acceptedContentTypes,
+            $exampleName
+        );
     }
 
     /**
@@ -132,5 +143,46 @@ class RequestHandler
         } catch (Throwable) {
             return $this->responseFaker->handleException(ValidationException::forUnprocessableEntity($throwable), $acceptedContentTypes[0] ?? 'application/json');
         }
+    }
+
+    /**
+     * Extract all 2xx status codes defined in the spec for the given operation,
+     * sorted ascending. Falls back to ['200', '201'] if none are found.
+     *
+     * @return list<string>
+     */
+    private function getSuccessStatusCodes(OpenApi $openApi, OperationAddress $operationAddress): array
+    {
+        try {
+            $operation = (new SpecFinder($openApi))
+                ->findOperationSpec($operationAddress);
+        } catch (Throwable) {
+            return ['200', '201'];
+        }
+
+        if ($operation->responses === null) {
+            return ['200', '201'];
+        }
+
+        $codes = [];
+        foreach (array_keys($operation->responses->getResponses()) as $code) {
+            $code = (string) $code;
+            if (preg_match('/^2\d{2}$/', $code) === 1) {
+                $codes[] = $code;
+            }
+        }
+
+        sort($codes);
+
+        if ($codes === []) {
+            // No 2xx codes defined, check for 'default' response
+            if ($operation->responses->hasResponse('default')) {
+                return ['default'];
+            }
+
+            return ['200', '201'];
+        }
+
+        return $codes;
     }
 }

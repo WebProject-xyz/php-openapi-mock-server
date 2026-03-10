@@ -165,6 +165,20 @@ final class OpenAPIFaker
         return $this;
     }
 
+    public function hasResponse(
+        string $path,
+        string $method,
+        string $statusCode = '200',
+    ): bool {
+        try {
+            $operation = $this->findOperation($path, HttpMethod::fromString($method));
+        } catch (NoPath) {
+            return false;
+        }
+
+        return $operation->responses !== null && $operation->responses->hasResponse($statusCode);
+    }
+
     /**
      * @return list<string>
      */
