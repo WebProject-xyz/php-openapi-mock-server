@@ -1,0 +1,23 @@
+grumphp:
+    process_timeout: 120
+    fixer:
+        enabled: false
+        fix_by_default: false
+    parallel:
+        enabled: true
+        max_workers: 8
+    tasks:
+        phpcsfixer:
+            config: .php-cs-fixer.php
+            allow_risky: true
+        phpstan:
+            configuration: phpstan.neon
+            level: 8
+            use_grumphp_paths: false
+#        rector:
+#            config: rector.php
+#            no_diffs: false
+#            triggered_by: ['php']
+        codeception:
+            config_file: codeception.yml
+            fail_fast: true

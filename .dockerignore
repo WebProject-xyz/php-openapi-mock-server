@@ -1,0 +1,12 @@
+.git
+.github
+.idea
+vendor
+tests
+_output
+.php-cs-fixer.cache
+.phpunit.result.cache
+Dockerfile
+compose.yml
+.env
+*.md

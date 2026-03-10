@@ -1,0 +1,20 @@
+services:
+  mock-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: webproject/php-openapi-mock-server:latest
+    container_name: openapi-mock-server
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      # Path or URL to the OpenAPI specification
+      - OPENAPI_SPEC=${OPENAPI_SPEC:-data/openapi.yaml}
+      # Enable FrankenPHP watcher for hot-reload
+      - FRANKENPHP_WATCHER=1
+    volumes:
+      # Mount source code for hot-reload
+      - .:/app
+      # Map data if you want to use local spec files
+      - ./data:/app/data:ro
