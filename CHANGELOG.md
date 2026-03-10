@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.1](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.0...1.3.1) (2026-03-10)
+
+### Bug Fixes
+
+* **docker:** add docker build ([2bd1e17](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/2bd1e173497973050b4f30eae796ad4a9b2e7a95))
+
 ## [1.3.0](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.2.3...1.3.0) (2026-03-10)
 
 ### Features
