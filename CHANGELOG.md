@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.0](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.2.3...1.3.0) (2026-03-10)
+
+### Features
+
+* **caching:** optimize caching by using pid and tmp dir ([d276dee](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/d276deeaac120e775def5027226fcb283f966d79))
+
 ## [1.2.3](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.2.2...1.2.3) (2026-03-10)
 
 ### Bug Fixes
