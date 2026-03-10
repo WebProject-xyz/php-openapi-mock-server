@@ -30,7 +30,7 @@
     "psr/http-server-handler": "^1.0",
     "psr/http-server-middleware": "^1.0",
     "symfony/cache": "^6.4 || ^7.4 || ^8.0",
-    "webmozart/assert": "^1.12"
+    "webmozart/assert": "^1.12 || ^2.0"
   },
   "require-dev": {
     "codeception/c3": "^2.9",
