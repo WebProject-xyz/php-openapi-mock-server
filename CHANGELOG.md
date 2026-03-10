@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.1.0...1.2.0) (2026-03-10)
+
+### Features
+
+* allow symfony ^6.4 ([db64930](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/db64930b1db7c419425615e707cd3472820e15dd))
+
 ## [1.1.0](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.0.0...1.1.0) (2026-03-10)
 
 ### Features
