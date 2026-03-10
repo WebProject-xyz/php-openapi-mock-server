@@ -17,7 +17,7 @@
     "devizzent/cebe-php-openapi": "^1.1",
     "fakerphp/faker": "^1.24.1",
     "laminas/laminas-diactoros": "^3.8",
-    "laminas/laminas-servicemanager": "^3.24",
+    "laminas/laminas-servicemanager": "^4.0",
     "league/openapi-psr7-validator": "^0.22",
     "mezzio/mezzio": "^3.27",
     "mezzio/mezzio-fastroute": "^3.14",
