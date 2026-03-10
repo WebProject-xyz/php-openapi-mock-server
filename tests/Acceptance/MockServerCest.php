@@ -65,6 +65,13 @@ class MockServerCest
         $acceptanceTester->seeResponseCodeIs(204);
     }
 
+    public function testGetReturns404WhenOnlyDefinedStatusCode(AcceptanceTester $acceptanceTester): void
+    {
+        $acceptanceTester->sendGet('/disabled-resource');
+        $acceptanceTester->seeResponseCodeIs(404);
+        $acceptanceTester->seeResponseIsJson();
+    }
+
     public function testDisableMockViaHeader(AcceptanceTester $acceptanceTester): void
     {
         // If we explicitly set it to false, it should fall through to Mezzio's root handler

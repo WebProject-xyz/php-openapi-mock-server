@@ -47,7 +47,7 @@ class RequestHandler
         return $this->responseFaker->mock(
             $openApi,
             $operationAddress,
-            $statusCode ?? $this->getSuccessStatusCodes($openApi, $operationAddress),
+            $statusCode ?? $this->getDefinedStatusCodes($openApi, $operationAddress),
             $acceptedContentTypes,
             $exampleName
         );
@@ -146,12 +146,14 @@ class RequestHandler
     }
 
     /**
-     * Extract all 2xx status codes defined in the spec for the given operation,
-     * sorted ascending. Falls back to ['200', '201'] if none are found.
+     * Extract status codes defined in the spec for the given operation.
+     *
+     * Priority: 2xx codes first (sorted), then all other defined codes (sorted),
+     * then 'default'. Falls back to ['200', '201'] only if the spec defines no responses at all.
      *
      * @return list<string>
      */
-    private function getSuccessStatusCodes(OpenApi $openApi, OperationAddress $operationAddress): array
+    private function getDefinedStatusCodes(OpenApi $openApi, OperationAddress $operationAddress): array
     {
         try {
             $operation = (new SpecFinder($openApi))
@@ -164,25 +166,34 @@ class RequestHandler
             return ['200', '201'];
         }
 
-        $codes = [];
+        $successCodes = [];
+        $otherCodes = [];
+        $hasDefault = false;
+
         foreach (array_keys($operation->responses->getResponses()) as $code) {
             $code = (string) $code;
+
+            if ($code === 'default') {
+                $hasDefault = true;
+                continue;
+            }
+
             if (preg_match('/^2\d{2}$/', $code) === 1) {
-                $codes[] = $code;
+                $successCodes[] = $code;
+            } else {
+                $otherCodes[] = $code;
             }
         }
 
-        sort($codes);
+        sort($successCodes);
+        sort($otherCodes);
 
-        if ($codes === []) {
-            // No 2xx codes defined, check for 'default' response
-            if ($operation->responses->hasResponse('default')) {
-                return ['default'];
-            }
+        $codes = [...$successCodes, ...$otherCodes];
 
-            return ['200', '201'];
+        if ($hasDefault) {
+            $codes[] = 'default';
         }
 
-        return $codes;
+        return $codes !== [] ? $codes : ['200', '201'];
     }
 }
