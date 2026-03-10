@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.2](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.1...1.3.2) (2026-03-10)
+
+### Bug Fixes
+
+* **code-style:** used rector to cleanup and update code ([87b2033](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/87b20330c085317a998c3b4271abd6552164f4a6))
+* **cs:** fix .php-cs-fixer config include paths ([b16c84a](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/b16c84a097bc30fc40784fe43a5dcc27a90bc1e6))
+* **faker:** implement path parameter injection and resolve data generation issues ([4d6269d](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/4d6269d4901a22989c429d77eca7c84a4900fb6f))
+* **faker:** resolve infinite loop and ensure non-empty responses ([80c3543](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/80c35437ca88f61a1d1b6b9c64ef9d38a198d62f))
+* **ui:** resolve Swagger UI initialization and spec detection ([1f82315](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/1f82315d16053b81254df5c89389624147579069))
+
 ## [1.3.1](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.0...1.3.1) (2026-03-10)
 
 ### Bug Fixes
