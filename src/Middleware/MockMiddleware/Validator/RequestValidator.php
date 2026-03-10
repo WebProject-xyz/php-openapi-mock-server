@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Validator;
 
 use cebe\openapi\spec\OpenApi;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\RoutingException;
 use League\OpenAPIValidation\PSR7\Exception\NoPath;
 use League\OpenAPIValidation\PSR7\OperationAddress;
 use League\OpenAPIValidation\PSR7\PathFinder;
 use League\OpenAPIValidation\PSR7\ValidatorBuilder;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\RoutingException;
 
 class RequestValidator
 {

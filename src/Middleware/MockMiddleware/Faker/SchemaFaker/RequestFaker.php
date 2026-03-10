@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker;
 
+use function array_key_exists;
 use cebe\openapi\spec\Example;
 use cebe\openapi\spec\MediaType;
 use cebe\openapi\spec\Reference;
 use cebe\openapi\spec\Schema;
+use function reset;
+use Webmozart\Assert\Assert;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoExample;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
-use Webmozart\Assert\Assert;
-
-use function array_key_exists;
-use function reset;
 
 /** @internal */
 final readonly class RequestFaker
@@ -29,13 +28,13 @@ final readonly class RequestFaker
         Options $options,
         FakerRegistry $fakerRegistry,
         FakerContext $fakerContext,
-        string|null $exampleName = null
+        ?string $exampleName = null
     ): array|string|bool|int|float|null {
         $examples = $mediaType->examples;
 
-        if ($options->getStrategy() === MockStrategy::STATIC && $examples !== []) {
-            if ($exampleName !== null) {
-                if (! array_key_exists($exampleName, $examples)) {
+        if (MockStrategy::STATIC === $options->getStrategy() && [] !== $examples) {
+            if (null !== $exampleName) {
+                if (!array_key_exists($exampleName, $examples)) {
                     throw NoExample::forRequest($exampleName);
                 }
 

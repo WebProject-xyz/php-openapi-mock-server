@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker;
 
-use cebe\openapi\spec\Schema;
-use Faker\Provider\Base;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
-
 use function array_key_exists;
 use function array_keys;
 use function array_reverse;
+use cebe\openapi\spec\Schema;
+use Faker\Provider\Base;
 use function is_array;
 use function is_string;
 use function json_decode;
 use function json_encode;
 use function md5;
 use function reset;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 
 /** @internal */
 final class SchemaFaker
@@ -32,20 +31,20 @@ final class SchemaFaker
     public function generate(Schema $schema, Options $options, FakerContext $fakerContext): mixed
     {
         $serializable = $schema->getSerializableData();
-        $encoded = json_encode($serializable);
-        if ($encoded === false) {
+        $encoded      = json_encode($serializable);
+        if (false === $encoded) {
             return [];
         }
 
         $cacheKey = md5($encoded . $fakerContext->getContext());
 
-        if (! isset(self::$resolvedCache[$cacheKey])) {
+        if (!isset(self::$resolvedCache[$cacheKey])) {
             /** @var array<mixed> $schemaData */
-            $schemaData = json_decode($encoded, true);
+            $schemaData                     = json_decode($encoded, true);
             self::$resolvedCache[$cacheKey] = $this->resolveOfConstraints($schemaData, $options);
         }
 
-        $resolvedData = self::$resolvedCache[$cacheKey];
+        $resolvedData   = self::$resolvedCache[$cacheKey];
         $resolvedSchema = new Schema($resolvedData);
 
         // Directly dispatch to known fakers to avoid infinite loop via FakerRegistry::generate()
@@ -71,7 +70,7 @@ final class SchemaFaker
         }
 
         // Fallback for objects with properties but no type
-        if (! empty($resolvedSchema->properties)) {
+        if (!empty($resolvedSchema->properties)) {
             return (new ObjectFaker())->generate($resolvedSchema, $options, $this->fakerRegistry, $fakerContext);
         }
 
@@ -85,23 +84,23 @@ final class SchemaFaker
      */
     private function resolveOfConstraints(array $schema, Options $options): array
     {
-        $useStaticStrategy = $options->getStrategy() === MockStrategy::STATIC;
-        
+        $useStaticStrategy = MockStrategy::STATIC === $options->getStrategy();
+
         // Handle complex constraints at the current level
         if (isset($schema['oneOf'])) {
             $subSchemas = $schema['oneOf'];
-            $subSchema = $useStaticStrategy ? reset($subSchemas) : Base::randomElement($subSchemas);
+            $subSchema  = $useStaticStrategy ? reset($subSchemas) : Base::randomElement($subSchemas);
             unset($schema['oneOf']);
             $schema = $this->merge($schema, $this->resolveOfConstraints($subSchema, $options));
         }
-        
+
         if (isset($schema['anyOf'])) {
             $subSchemas = $schema['anyOf'];
-            $subSchema = $useStaticStrategy ? reset($subSchemas) : Base::randomElement($subSchemas);
+            $subSchema  = $useStaticStrategy ? reset($subSchemas) : Base::randomElement($subSchemas);
             unset($schema['anyOf']);
             $schema = $this->merge($schema, $this->resolveOfConstraints($subSchema, $options));
         }
-        
+
         if (isset($schema['allOf'])) {
             $allSubSchemas = $schema['allOf'];
             unset($schema['allOf']);
@@ -135,13 +134,13 @@ final class SchemaFaker
     private function merge(array $firstArray, array $secondArray): array
     {
         foreach (array_keys($secondArray) as $key) {
-            if (! is_array($secondArray[$key])) {
+            if (!is_array($secondArray[$key])) {
                 $firstArray[$key] = $secondArray[$key];
 
                 continue;
             }
 
-            if (! array_key_exists($key, $firstArray) || ! is_array($firstArray[$key])) {
+            if (!array_key_exists($key, $firstArray) || !is_array($firstArray[$key])) {
                 $firstArray[$key] = $secondArray[$key];
                 continue;
             }

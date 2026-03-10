@@ -4,34 +4,36 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker;
 
+use function is_string;
+
 final class Options
 {
     public function __construct(
-        private int|null $minItems = null,
-        private int|null $maxItems = null,
+        private ?int $minItems = null,
+        private ?int $maxItems = null,
         private bool $alwaysFakeOptionals = false,
         private MockStrategy $mockStrategy = MockStrategy::DYNAMIC,
     ) {
     }
 
-    public function getMinItems(): int|null
+    public function getMinItems(): ?int
     {
         return $this->minItems;
     }
 
-    public function setMinItems(int|null $minItems): self
+    public function setMinItems(?int $minItems): self
     {
         $this->minItems = $minItems;
 
         return $this;
     }
 
-    public function getMaxItems(): int|null
+    public function getMaxItems(): ?int
     {
         return $this->maxItems;
     }
 
-    public function setMaxItems(int|null $maxItems): self
+    public function setMaxItems(?int $maxItems): self
     {
         $this->maxItems = $maxItems;
 

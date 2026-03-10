@@ -37,7 +37,7 @@ final readonly class FakerContext
 
     public function isRequest(): bool
     {
-        return $this->context === self::REQUEST;
+        return self::REQUEST === $this->context;
     }
 
     public function getContext(): string

@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Factory;
 
-use Psr\Cache\CacheItemPoolInterface;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\OpenApiMockMiddlewareBuilder;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\OpenApiMockMiddlewareConfig;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Utils\RemoteSpecificationLoader;
+use const DIRECTORY_SEPARATOR;
+use function dirname;
+use function file_get_contents;
+use function getcwd;
+use function getenv;
 use Mezzio\ProblemDetails\ProblemDetailsResponseFactory;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -16,18 +18,14 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
-use Throwable;
-
-use function dirname;
-use function file_get_contents;
-use function getcwd;
-use function getenv;
 use function sprintf;
 use function str_contains;
 use function str_ends_with;
 use function str_starts_with;
-
-use const DIRECTORY_SEPARATOR;
+use Throwable;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\OpenApiMockMiddlewareBuilder;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\OpenApiMockMiddlewareConfig;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Utils\RemoteSpecificationLoader;
 
 class OpenApiMockMiddlewareFactory
 {
@@ -39,10 +37,10 @@ class OpenApiMockMiddlewareFactory
         $mockConfig  = (array) ($config['openapi_mock'] ?? []);
         $specPath    = $mockConfig['spec'] ?? getenv('OPENAPI_SPEC') ?: null;
 
-        if ($specPath === null) {
+        if (null === $specPath) {
             // No spec configured — use default from the package itself
             $specPath = $packageRoot . '/data/openapi.yaml';
-        } elseif (! str_starts_with((string) $specPath, '/') && ! str_starts_with((string) $specPath, 'http')) {
+        } elseif (!str_starts_with((string) $specPath, '/') && !str_starts_with((string) $specPath, 'http')) {
             // Relative paths: resolve from cwd when installed as dependency, package root otherwise
             $resolveBase = str_contains($packageRoot, DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR)
                 ? (getcwd() ?: '.')
@@ -64,7 +62,7 @@ class OpenApiMockMiddlewareFactory
             if (str_starts_with((string) $specPath, 'http')) {
                 $context = RemoteSpecificationLoader::createStreamContext();
                 $content = file_get_contents($specPath, false, $context);
-                if ($content === false) {
+                if (false === $content) {
                     throw new RuntimeException(sprintf('Failed to fetch remote spec from "%s"', $specPath));
                 }
 
@@ -106,7 +104,7 @@ class OpenApiMockMiddlewareFactory
             );
         } catch (Throwable $throwable) {
             // Return an anonymous middleware that reports the error
-            return new readonly class ($throwable, $specPath, $container) implements MiddlewareInterface {
+            return new readonly class($throwable, $specPath, $container) implements MiddlewareInterface {
                 public function __construct(
                     private Throwable $throwable,
                     private string $specPath,

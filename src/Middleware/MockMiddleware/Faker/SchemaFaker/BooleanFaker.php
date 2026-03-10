@@ -6,17 +6,16 @@ namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Schema
 
 use cebe\openapi\spec\Schema;
 use Faker\Provider\Base;
+use function reset;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
-
-use function reset;
 
 /** @internal */
 final class BooleanFaker implements FakerInterface
 {
     public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext): ?bool
     {
-        if ($options->getStrategy() === MockStrategy::STATIC) {
+        if (MockStrategy::STATIC === $options->getStrategy()) {
             return $this->generateStatic($schema);
         }
 
@@ -25,7 +24,7 @@ final class BooleanFaker implements FakerInterface
 
     private function generateDynamic(Schema $schema): bool
     {
-        if (! empty($schema->enum)) {
+        if (!empty($schema->enum)) {
             /** @var bool $value */
             $value = Base::randomElement($schema->enum);
 
@@ -37,11 +36,11 @@ final class BooleanFaker implements FakerInterface
 
     private function generateStatic(Schema $schema): ?bool
     {
-        if ($schema->default !== null) {
+        if (null !== $schema->default) {
             return (bool) $schema->default;
         }
 
-        if ($schema->example !== null) {
+        if (null !== $schema->example) {
             return (bool) $schema->example;
         }
 
@@ -49,7 +48,7 @@ final class BooleanFaker implements FakerInterface
             return null;
         }
 
-        if (! empty($schema->enum)) {
+        if (!empty($schema->enum)) {
             /** @var array<bool> $enums */
             $enums = $schema->enum;
 

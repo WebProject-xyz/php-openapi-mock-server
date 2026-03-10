@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware;
 
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Request\RequestHandler;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response\ResponseHandler;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Validator\RequestValidator;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Validator\ResponseValidator;
 use function array_map;
 use function array_slice;
 use function explode;
@@ -23,6 +19,10 @@ use function substr;
 use Throwable;
 use function trim;
 use function usort;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Request\RequestHandler;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response\ResponseHandler;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Validator\RequestValidator;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Validator\ResponseValidator;
 
 class OpenApiMockMiddleware implements MiddlewareInterface
 {
@@ -53,7 +53,7 @@ class OpenApiMockMiddleware implements MiddlewareInterface
         $exampleName          = $this->getExample($request);
 
         $path = $request->getUri()->getPath();
-        if ($path === '/' || $path === '/openapi.yaml' || $path === '/openapi.json') {
+        if ('/' === $path || '/openapi.yaml' === $path || '/openapi.json' === $path) {
             return $handler->handle($request);
         }
 
@@ -125,7 +125,7 @@ class OpenApiMockMiddleware implements MiddlewareInterface
     {
         $accept = $serverRequest->getHeaderLine(self::HEADER_ACCEPT);
 
-        if ($accept === '' || $accept === '*/*') {
+        if ('' === $accept || '*/*' === $accept) {
             return [self::DEFAULT_CONTENT_TYPE];
         }
 
@@ -147,7 +147,7 @@ class OpenApiMockMiddleware implements MiddlewareInterface
                 }
             }
 
-            if ($part !== '') {
+            if ('' !== $part) {
                 $types[] = ['type' => $part, 'quality' => $quality];
             }
         }
@@ -156,7 +156,7 @@ class OpenApiMockMiddleware implements MiddlewareInterface
 
         $result = array_map(static fn (array $t): string => $t['type'], $types);
 
-        return $result !== [] ? $result : [self::DEFAULT_CONTENT_TYPE];
+        return [] !== $result ? $result : [self::DEFAULT_CONTENT_TYPE];
     }
 
     private function getExample(ServerRequestInterface $serverRequest): ?string

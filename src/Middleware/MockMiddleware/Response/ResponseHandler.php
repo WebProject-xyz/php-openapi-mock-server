@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response;
 
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\ValidationException;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\ValidationException;
 
 class ResponseHandler
 {

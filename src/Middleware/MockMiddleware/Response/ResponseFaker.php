@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response;
 
 use function array_filter;
-use function in_array;
 use cebe\openapi\spec\OpenApi;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\RequestException;
+use function in_array;
 use InvalidArgumentException;
 use function json_encode;
 use League\OpenAPIValidation\PSR7\OperationAddress;
@@ -15,6 +14,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Throwable;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\RequestException;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoExample;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoPath;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoResponse;
@@ -50,7 +50,7 @@ class ResponseFaker
         ?string $exampleName = null,
         array $pathParameters = []
     ): ResponseInterface {
-        $codes = (array) $statusCodes;
+        $codes         = (array) $statusCodes;
         $lastException = null;
 
         foreach ($codes as $code) {
@@ -88,7 +88,7 @@ class ResponseFaker
             $statusCode = 500;
         }
 
-        $response = $this->responseFactory->createResponse();
+        $response   = $this->responseFactory->createResponse();
         $stream     = $this->streamFactory->createStream((string) json_encode($error));
 
         return $response->withBody($stream)->withStatus($statusCode)->withAddedHeader('Content-Type', $contentType ?? 'application/problem+json');
@@ -126,7 +126,7 @@ class ResponseFaker
             ? $openAPIFaker->mockResponseForExample($path, $method, $exampleName, $statusCode, $contentType, $pathParameters)
             : $openAPIFaker->mockResponse($path, $method, $statusCode, $contentType, $pathParameters);
 
-        $response = $this->responseFactory->createResponse();
+        $response   = $this->responseFactory->createResponse();
         $stream     = $this->streamFactory->createStream((string) json_encode($fakeData));
 
         return $response->withStatus((int) $statusCode)->withBody($stream)->withAddedHeader('Content-Type', $contentType);
@@ -144,12 +144,12 @@ class ResponseFaker
     ): string {
         $availableTypes = $openAPIFaker->getAvailableResponseContentTypes($path, $method, $statusCode);
 
-        if ($availableTypes === []) {
+        if ([] === $availableTypes) {
             return $acceptedContentTypes[0] ?? 'application/json';
         }
 
         foreach ($acceptedContentTypes as $acceptedType) {
-            if ($acceptedType === '*/*') {
+            if ('*/*' === $acceptedType) {
                 return $availableTypes[0];
             }
 
@@ -171,11 +171,11 @@ class ResponseFaker
         string $method,
         string $statusCode,
     ): bool {
-        if (! $openAPIFaker->hasResponse($path, $method, $statusCode)) {
+        if (!$openAPIFaker->hasResponse($path, $method, $statusCode)) {
             return false;
         }
 
-        return $openAPIFaker->getAvailableResponseContentTypes($path, $method, $statusCode) === [];
+        return [] === $openAPIFaker->getAvailableResponseContentTypes($path, $method, $statusCode);
     }
 
     private function createFaker(OpenApi $openApi): OpenAPIFaker

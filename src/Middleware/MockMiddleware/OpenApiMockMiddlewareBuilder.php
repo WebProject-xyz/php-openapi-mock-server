@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware;
 
+use League\OpenAPIValidation\PSR7\ValidatorBuilder;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Request\RequestHandler;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response\ResponseFaker;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response\ResponseHandler;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Validator\RequestValidator;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Validator\ResponseValidator;
-use League\OpenAPIValidation\PSR7\ValidatorBuilder;
-use Psr\Cache\CacheItemPoolInterface;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 
 class OpenApiMockMiddlewareBuilder
 {

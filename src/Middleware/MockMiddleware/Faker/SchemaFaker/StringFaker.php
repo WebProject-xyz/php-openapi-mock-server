@@ -7,11 +7,10 @@ namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Schema
 use cebe\openapi\spec\Schema;
 use Faker\Factory;
 use Faker\Generator;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
-
 use function reset;
 use function str_repeat;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 
 /** @internal */
 final class StringFaker implements FakerInterface
@@ -25,7 +24,7 @@ final class StringFaker implements FakerInterface
 
     public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext): ?string
     {
-        if ($options->getStrategy() === MockStrategy::STATIC) {
+        if (MockStrategy::STATIC === $options->getStrategy()) {
             return $this->generateStatic($schema);
         }
 
@@ -34,14 +33,14 @@ final class StringFaker implements FakerInterface
 
     private function generateDynamic(Schema $schema): string
     {
-        if (! empty($schema->enum)) {
+        if (!empty($schema->enum)) {
             /** @var string $value */
             $value = $this->faker->randomElement($schema->enum);
 
             return $value;
         }
 
-        if ($schema->pattern !== null) {
+        if (null !== $schema->pattern) {
             return $this->faker->regexify($schema->pattern);
         }
 
@@ -62,11 +61,11 @@ final class StringFaker implements FakerInterface
 
     private function generateStatic(Schema $schema): ?string
     {
-        if ($schema->default !== null) {
+        if (null !== $schema->default) {
             return (string) $schema->default;
         }
 
-        if ($schema->example !== null) {
+        if (null !== $schema->example) {
             return (string) $schema->example;
         }
 
@@ -74,7 +73,7 @@ final class StringFaker implements FakerInterface
             return null;
         }
 
-        if (! empty($schema->enum)) {
+        if (!empty($schema->enum)) {
             /** @var array<string> $enums */
             $enums = $schema->enum;
 

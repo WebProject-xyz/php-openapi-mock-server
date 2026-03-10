@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker;
 
-use cebe\openapi\spec\Reference;
-use cebe\openapi\spec\Schema;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
-use Webmozart\Assert\Assert;
-
 use function array_map;
 use function array_unique;
+use cebe\openapi\spec\Reference;
+use cebe\openapi\spec\Schema;
 use function count;
 use function range;
+use Webmozart\Assert\Assert;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 
 /** @internal */
 final class ArrayFaker implements FakerInterface
@@ -21,14 +20,14 @@ final class ArrayFaker implements FakerInterface
     /** @return array<mixed>|null */
     public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext): ?array
     {
-        $useStaticStrategy = $options->getStrategy() === MockStrategy::STATIC;
+        $useStaticStrategy = MockStrategy::STATIC === $options->getStrategy();
 
         if ($useStaticStrategy) {
-            if ($schema->example !== null) {
+            if (null !== $schema->example) {
                 return (array) $schema->example;
             }
 
-            if ($schema->default !== null) {
+            if (null !== $schema->default) {
                 return (array) $schema->default;
             }
 
@@ -40,11 +39,11 @@ final class ArrayFaker implements FakerInterface
         $minItems = $schema->minItems ?? ($useStaticStrategy ? 1 : 0);
         $maxItems = $schema->maxItems ?? ($useStaticStrategy ? $minItems : 10);
 
-        if ($options->getMinItems() !== null && $minItems < $options->getMinItems()) {
+        if (null !== $options->getMinItems() && $minItems < $options->getMinItems()) {
             $minItems = $options->getMinItems();
         }
 
-        if ($options->getMaxItems() !== null && $maxItems > $options->getMaxItems()) {
+        if (null !== $options->getMaxItems() && $maxItems > $options->getMaxItems()) {
             $maxItems = $options->getMaxItems();
 
             if ($minItems > $maxItems) {
@@ -62,7 +61,7 @@ final class ArrayFaker implements FakerInterface
         Assert::isInstanceOf($itemsSchema, Schema::class);
 
         $fakeData = array_map(
-            fn (): mixed => $fakerRegistry->generate($itemsSchema, $options, $fakerContext),
+            static fn (): mixed => $fakerRegistry->generate($itemsSchema, $options, $fakerContext),
             $count > 0 ? range(1, $count) : []
         );
 

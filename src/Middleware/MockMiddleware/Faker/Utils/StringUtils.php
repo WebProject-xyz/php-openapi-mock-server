@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Utils;
 
-use Webmozart\Assert\Assert;
-
 use function base_convert;
 use function ceil;
 use function implode;
@@ -15,6 +13,7 @@ use function str_split;
 use function strlen;
 use function substr;
 use function unpack;
+use Webmozart\Assert\Assert;
 
 /** @internal */
 final class StringUtils
@@ -34,17 +33,17 @@ final class StringUtils
         return implode(' ', $binary);
     }
 
-    public static function ensureLength(string $text, int|null $minLength = null, int|null $maxLength = null): string
+    public static function ensureLength(string $text, ?int $minLength = null, ?int $maxLength = null): string
     {
-        if ($minLength === null) {
+        if (null === $minLength) {
             $minLength = 0;
         }
 
-        if ($maxLength === null) {
+        if (null === $maxLength) {
             $maxLength = strlen($text);
         }
 
-        if (max($minLength, $maxLength) === 0) {
+        if (0 === max($minLength, $maxLength)) {
             return $text;
         }
 

@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
 
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\OpenApiMockMiddleware;
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\StreamFactory;
 use Laminas\ServiceManager\ServiceManager;
@@ -11,13 +10,14 @@ use Mezzio\Router\ConfigProvider as RouterConfigProvider;
 use Mezzio\Router\FastRouteRouter;
 use Mezzio\Router\FastRouteRouter\ConfigProvider as FastRouteConfigProvider;
 use Mezzio\Router\RouterInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Psr\Cache\CacheItemPoolInterface;
 use WebProject\PhpOpenApiMockServer\Factory\OpenApiMockMiddlewareFactory;
 use WebProject\PhpOpenApiMockServer\Middleware\ForceMockActiveMiddleware;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\OpenApiMockMiddleware;
 
 $container = new ServiceManager();
 
@@ -38,16 +38,16 @@ $container->setService('config', [
 $container->setAlias(RouterInterface::class, FastRouteRouter::class);
 
 // Factories
-$container->setFactory(ResponseInterface::class, static fn(): Closure => static fn(): ResponseInterface => (new ResponseFactory())->createResponse());
+$container->setFactory(ResponseInterface::class, static fn (): Closure => static fn (): ResponseInterface => (new ResponseFactory())->createResponse());
 $container->setService(ResponseFactoryInterface::class, new ResponseFactory());
 $container->setService(StreamFactoryInterface::class, new StreamFactory());
 
 // Cache Configuration — isolated per process to avoid conflicts between parallel server instances
 $processCacheDir = sys_get_temp_dir() . '/openapi_mock_cache/' . getmypid();
-$container->setFactory(CacheItemPoolInterface::class, static fn(): FilesystemAdapter => new FilesystemAdapter('openapi_mock', 0, $processCacheDir));
+$container->setFactory(CacheItemPoolInterface::class, static fn (): FilesystemAdapter => new FilesystemAdapter('openapi_mock', 0, $processCacheDir));
 
 register_shutdown_function(static function () use ($processCacheDir): void {
-    if (! is_dir($processCacheDir)) {
+    if (!is_dir($processCacheDir)) {
         return;
     }
 

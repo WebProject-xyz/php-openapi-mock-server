@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Utils;
 
-use Webmozart\Assert\Assert;
-
 use function explode;
 use function preg_replace;
 use function preg_replace_callback;
 use function str_repeat;
 use function str_replace;
 use function str_split;
+use Webmozart\Assert\Assert;
 
 /** @internal */
 final class RegexUtils
@@ -45,13 +44,13 @@ final class RegexUtils
             Assert::notEmpty($split);
             $firstElement = $split[0];
 
-            //[.] should not be a character, but a literal .
+            // [.] should not be a character, but a literal .
             return str_replace('.', '\.', $firstElement);
         }, $regex);
         // replace \d with number 1 and \w with letter a
         $regex = (string) preg_replace('/\\\w/', 'a', $regex);
         $regex = (string) preg_replace('/\\\d/', '1', $regex);
-        //replace . with !
+        // replace . with !
         $regex = (string) preg_replace('/(?<!\\\)\./', '!', $regex);
         // remove remaining single backslashes
         $regex = str_replace('\\\\', '[:escaped_backslash:]', $regex);

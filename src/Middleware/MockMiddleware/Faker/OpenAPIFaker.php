@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker;
 
+use function array_key_exists;
+use function array_keys;
 use cebe\openapi\exceptions\TypeErrorException;
 use cebe\openapi\exceptions\UnresolvableReferenceException;
 use cebe\openapi\spec\MediaType;
@@ -14,6 +16,7 @@ use cebe\openapi\spec\RequestBody;
 use cebe\openapi\spec\Response;
 use cebe\openapi\spec\Schema;
 use League\OpenAPIValidation\PSR7 as LeagueOpenAPI;
+use Webmozart\Assert\Assert;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoPath;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoRequest;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoResponse;
@@ -21,10 +24,6 @@ use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\No
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\FakerContext;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker\FakerRegistry;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Utils\HttpMethod;
-use Webmozart\Assert\Assert;
-
-use function array_key_exists;
-use function array_keys;
 
 final class OpenAPIFaker
 {
@@ -84,9 +83,9 @@ final class OpenAPIFaker
         $mediaType = $this->findContentForRequest($path, HttpMethod::fromString($method), $contentType);
 
         return $this->fakerRegistry->getRequestFaker()->generate(
-            $mediaType, 
-            $this->options, 
-            $this->fakerRegistry, 
+            $mediaType,
+            $this->options,
+            $this->fakerRegistry,
             FakerContext::request($pathParameters)
         );
     }
@@ -104,9 +103,9 @@ final class OpenAPIFaker
         $mediaType = $this->findContentForRequest($path, HttpMethod::fromString($method), $contentType);
 
         return $this->fakerRegistry->getRequestFaker()->generate(
-            $mediaType, 
-            $this->options, 
-            $this->fakerRegistry, 
+            $mediaType,
+            $this->options,
+            $this->fakerRegistry,
             FakerContext::request($pathParameters),
             $exampleName
         );
@@ -125,9 +124,9 @@ final class OpenAPIFaker
         $mediaType = $this->findContentForResponse($path, HttpMethod::fromString($method), $statusCode, $contentType);
 
         return $this->fakerRegistry->getResponseFaker()->generate(
-            $mediaType, 
-            $this->options, 
-            $this->fakerRegistry, 
+            $mediaType,
+            $this->options,
+            $this->fakerRegistry,
             FakerContext::response($pathParameters)
         );
     }
@@ -146,9 +145,9 @@ final class OpenAPIFaker
         $mediaType = $this->findContentForResponse($path, HttpMethod::fromString($method), $statusCode, $contentType);
 
         return $this->fakerRegistry->getResponseFaker()->generate(
-            $mediaType, 
-            $this->options, 
-            $this->fakerRegistry, 
+            $mediaType,
+            $this->options,
+            $this->fakerRegistry,
             FakerContext::response($pathParameters),
             $exampleName
         );
@@ -215,7 +214,7 @@ final class OpenAPIFaker
             return false;
         }
 
-        return $operation->responses !== null && $operation->responses->hasResponse($statusCode);
+        return null !== $operation->responses && $operation->responses->hasResponse($statusCode);
     }
 
     /**
@@ -228,7 +227,7 @@ final class OpenAPIFaker
     ): array {
         $operation = $this->findOperation($path, HttpMethod::fromString($method));
 
-        if ($operation->responses === null || ! $operation->responses->hasResponse($statusCode)) {
+        if (null === $operation->responses || !$operation->responses->hasResponse($statusCode)) {
             return [];
         }
 
@@ -257,7 +256,7 @@ final class OpenAPIFaker
     ): MediaType {
         $operation = $this->findOperation($path, $httpMethod);
 
-        if ($operation->requestBody === null) {
+        if (null === $operation->requestBody) {
             throw NoRequest::forPathAndMethod($path, $httpMethod->value);
         }
 
@@ -265,7 +264,7 @@ final class OpenAPIFaker
         $requestBody = $operation->requestBody;
         $contents    = $requestBody->content;
 
-        if (! array_key_exists($contentType, $contents)) {
+        if (!array_key_exists($contentType, $contents)) {
             throw NoRequest::forPathAndMethodAndContentType($path, $httpMethod->value, $contentType);
         }
 
@@ -283,11 +282,11 @@ final class OpenAPIFaker
     ): MediaType {
         $operation = $this->findOperation($path, $httpMethod);
 
-        if ($operation->responses === null) {
+        if (null === $operation->responses) {
             throw NoResponse::forPathAndMethodAndStatusCode($path, $httpMethod->value, $statusCode);
         }
 
-        if (! $operation->responses->hasResponse($statusCode)) {
+        if (!$operation->responses->hasResponse($statusCode)) {
             throw NoResponse::forPathAndMethodAndStatusCode($path, $httpMethod->value, $statusCode);
         }
 
@@ -295,7 +294,7 @@ final class OpenAPIFaker
         $response = $operation->responses->getResponse($statusCode);
         $contents = $response->content;
 
-        if (! array_key_exists($contentType, $contents)) {
+        if (!array_key_exists($contentType, $contents)) {
             throw NoResponse::forPathAndMethodAndStatusCode($path, $httpMethod->value, $statusCode);
         }
 
@@ -307,11 +306,11 @@ final class OpenAPIFaker
 
     private function findComponentSchema(string $schemaName): Schema
     {
-        if ($this->openApi->components === null) {
+        if (null === $this->openApi->components) {
             throw NoSchema::forZeroComponents();
         }
 
-        if (! array_key_exists($schemaName, $this->openApi->components->schemas)) {
+        if (!array_key_exists($schemaName, $this->openApi->components->schemas)) {
             throw NoSchema::forComponentName($schemaName);
         }
 

@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\OpenApiMockMiddleware;
 use Mezzio\Application;
 use Mezzio\MiddlewareFactory;
 use Mezzio\ProblemDetails\ProblemDetailsMiddleware;
 use Mezzio\Router\Middleware\DispatchMiddleware;
 use Mezzio\Router\Middleware\RouteMiddleware;
 use WebProject\PhpOpenApiMockServer\Middleware\ForceMockActiveMiddleware;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\OpenApiMockMiddleware;
 
 return static function (Application $application, MiddlewareFactory $middlewareFactory): void {
     // 1. Problem Details Catch-All

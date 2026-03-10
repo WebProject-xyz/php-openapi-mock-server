@@ -11,10 +11,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Utils\RemoteSpecificationLoader;
 
 return static function (Application $application, MiddlewareFactory $middlewareFactory): void {
-    $specPath = getenv('OPENAPI_SPEC') ?: null;
+    $specPath    = getenv('OPENAPI_SPEC') ?: null;
     $packageRoot = realpath(__DIR__ . '/..') ?: '/app';
 
-    if ($specPath === null || $specPath === false) {
+    if (null === $specPath || false === $specPath) {
         $specPath = $packageRoot . '/data/openapi.yaml';
     } elseif (!str_starts_with((string) $specPath, '/') && !str_starts_with((string) $specPath, 'http')) {
         $resolveBase = str_contains($packageRoot, DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR)
@@ -33,7 +33,7 @@ return static function (Application $application, MiddlewareFactory $middlewareF
                 $content = file_exists($path) ? file_get_contents($path) : null;
             }
 
-            if ($content === false || $content === null) {
+            if (false === $content || null === $content) {
                 return new TextResponse('OpenAPI spec not found at ' . $path, 404);
             }
 
@@ -67,50 +67,51 @@ return static function (Application $application, MiddlewareFactory $middlewareF
         }
 
         // Determine the correct spec URL for Swagger UI
-        $path = (string) $specPath;
+        $path       = (string) $specPath;
         $parsedPath = parse_url($path, PHP_URL_PATH) ?: $path;
-        $extension = strtolower(pathinfo($parsedPath, PATHINFO_EXTENSION));
-        $specUrl = $extension === 'json' ? '/openapi.json' : '/openapi.yaml';
+        $extension  = strtolower(pathinfo($parsedPath, PATHINFO_EXTENSION));
+        $specUrl    = 'json' === $extension ? '/openapi.json' : '/openapi.yaml';
 
         $html = <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="SwaggerUI" />
-  <title>OpenAPI Mock Server - Swagger UI</title>
-  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
-  <style>
-    html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }
-    *, *:before, *:after { box-sizing: inherit; }
-    body { margin: 0; background: #fafafa; }
-  </style>
-</head>
-<body>
-<div id="swagger-ui"></div>
-<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" crossorigin></script>
-<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js" crossorigin></script>
-<script>
-  window.onload = () => {
-    window.ui = SwaggerUIBundle({
-      url: '$specUrl',
-      dom_id: '#swagger-ui',
-      deepLinking: true,
-      presets: [
-        SwaggerUIBundle.presets.apis,
-        SwaggerUIStandalonePreset
-      ],
-      plugins: [
-        SwaggerUIBundle.plugins.DownloadUrl
-      ],
-      layout: "BaseLayout",
-    });
-  };
-</script>
-</body>
-</html>
-HTML;
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <meta name="description" content="SwaggerUI" />
+              <title>OpenAPI Mock Server - Swagger UI</title>
+              <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+              <style>
+                html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }
+                *, *:before, *:after { box-sizing: inherit; }
+                body { margin: 0; background: #fafafa; }
+              </style>
+            </head>
+            <body>
+            <div id="swagger-ui"></div>
+            <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" crossorigin></script>
+            <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js" crossorigin></script>
+            <script>
+              window.onload = () => {
+                window.ui = SwaggerUIBundle({
+                  url: '$specUrl',
+                  dom_id: '#swagger-ui',
+                  deepLinking: true,
+                  presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                  ],
+                  plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                  ],
+                  layout: "BaseLayout",
+                });
+              };
+            </script>
+            </body>
+            </html>
+            HTML;
+
         return new HtmlResponse($html);
     }, 'home');
 };

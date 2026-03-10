@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker;
 
 use cebe\openapi\spec\Schema;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
-
 use function is_array;
 use function is_string;
 use function reset;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 
 /** @internal */
 final class FakerRegistry
@@ -36,10 +35,10 @@ final class FakerRegistry
     public function generate(Schema $schema, Options $options, FakerContext $fakerContext): mixed
     {
         $fakerType = $this->resolveType($schema);
-        
+
         if (isset($this->fakers[$fakerType->value])) {
             $faker = $this->fakers[$fakerType->value];
-            
+
             if ($faker instanceof FakerInterface) {
                 return $faker->generate($schema, $options, $this, $fakerContext);
             }
@@ -53,6 +52,7 @@ final class FakerRegistry
     {
         /** @var SchemaFaker $faker */
         $faker = $this->fakers[FakerType::SCHEMA->value];
+
         return $faker;
     }
 
@@ -60,6 +60,7 @@ final class FakerRegistry
     {
         /** @var RequestFaker $faker */
         $faker = $this->fakers[FakerType::REQUEST->value];
+
         return $faker;
     }
 
@@ -67,26 +68,27 @@ final class FakerRegistry
     {
         /** @var ResponseFaker $faker */
         $faker = $this->fakers[FakerType::RESPONSE->value];
+
         return $faker;
     }
 
     private function resolveType(Schema $schema): FakerType
     {
         $type = $schema->type;
-        
+
         if (is_array($type)) {
             $type = reset($type);
         }
 
-        if (is_string($type) && $type !== '') {
+        if (is_string($type) && '' !== $type) {
             return FakerType::tryFrom($type) ?? FakerType::UNKNOWN;
         }
 
-        if (! empty($schema->properties)) {
+        if (!empty($schema->properties)) {
             return FakerType::OBJECT;
         }
 
-        if ($schema->items !== null) {
+        if (null !== $schema->items) {
             return FakerType::ARRAY;
         }
 

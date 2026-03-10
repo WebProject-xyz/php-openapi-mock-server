@@ -25,20 +25,20 @@ class RemoteSpecificationLoader
         ];
 
         $bearer = getenv('OPENAPI_SPEC_AUTH_BEARER');
-        if (is_string($bearer) && $bearer !== '') {
+        if (is_string($bearer) && '' !== $bearer) {
             $headers[] = sprintf('Authorization: Bearer %s', $bearer);
         }
 
         $basic = getenv('OPENAPI_SPEC_AUTH_BASIC');
-        if (is_string($basic) && $basic !== '') {
+        if (is_string($basic) && '' !== $basic) {
             $headers[] = sprintf('Authorization: Basic %s', base64_encode($basic));
         }
 
         $customHeaders = getenv('OPENAPI_SPEC_HEADERS');
-        if (is_string($customHeaders) && $customHeaders !== '') {
+        if (is_string($customHeaders) && '' !== $customHeaders) {
             // Assume semicolon separated
             foreach (explode(';', $customHeaders) as $header) {
-                if (trim($header) !== '') {
+                if ('' !== trim($header)) {
                     $headers[] = trim($header);
                 }
             }

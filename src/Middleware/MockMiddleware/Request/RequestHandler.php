@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Request;
 
+use function array_keys;
 use cebe\openapi\spec\OpenApi;
+use InvalidArgumentException;
 use League\OpenAPIValidation\PSR7\Exception\NoOperation;
 use League\OpenAPIValidation\PSR7\Exception\NoPath;
 use League\OpenAPIValidation\PSR7\Exception\NoResponseCode;
@@ -12,19 +14,15 @@ use League\OpenAPIValidation\PSR7\Exception\Validation\InvalidSecurity;
 use League\OpenAPIValidation\PSR7\Exception\ValidationFailed;
 use League\OpenAPIValidation\PSR7\OperationAddress;
 use League\OpenAPIValidation\PSR7\SpecFinder;
+use function preg_match;
 use Psr\Http\Message\ResponseInterface;
+use function sort;
 use Throwable;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\RoutingException;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\SecurityException;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Exception\ValidationException;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception\NoPath as FakerNoPath;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Response\ResponseFaker;
-
-use function array_keys;
-use function preg_match;
-use function sort;
-
-use InvalidArgumentException;
 
 class RequestHandler
 {
@@ -72,7 +70,7 @@ class RequestHandler
     ): ResponseInterface {
         $errorContentType = $acceptedContentTypes[0] ?? 'application/json';
 
-        if ($openApi === null || $operationAddress === null) {
+        if (null === $openApi || null === $operationAddress) {
             return $this->responseFaker->handleException(ValidationException::forViolations($exception), $errorContentType);
         }
 
@@ -103,9 +101,9 @@ class RequestHandler
     ): ResponseInterface {
         try {
             return $this->responseFaker->mock(
-                $openApi, 
-                $operationAddress, 
-                ['404', '400', '500', 'default'], 
+                $openApi,
+                $operationAddress,
+                ['404', '400', '500', 'default'],
                 $acceptedContentTypes,
                 null,
                 $pathParameters
@@ -116,7 +114,7 @@ class RequestHandler
                 $throwable instanceof NoOperation    => RoutingException::forNoPathAndMethodMatched($throwable),
                 $throwable instanceof NoPath,
                 $throwable instanceof FakerNoPath    => RoutingException::forNoPathMatched($throwable),
-                default                             => ValidationException::forViolations($throwable),
+                default                              => ValidationException::forViolations($throwable),
             };
 
             return $this->responseFaker->handleException($th, $acceptedContentTypes[0] ?? 'application/json');
@@ -138,9 +136,9 @@ class RequestHandler
     ): ResponseInterface {
         try {
             return $this->responseFaker->mock(
-                $openApi, 
-                $operationAddress, 
-                ['401', '500', 'default'], 
+                $openApi,
+                $operationAddress,
+                ['401', '500', 'default'],
                 $acceptedContentTypes,
                 null,
                 $pathParameters
@@ -165,9 +163,9 @@ class RequestHandler
     ): ResponseInterface {
         try {
             return $this->responseFaker->mock(
-                $openApi, 
-                $operationAddress, 
-                ['422', '400', '500', 'default'], 
+                $openApi,
+                $operationAddress,
+                ['422', '400', '500', 'default'],
                 $acceptedContentTypes,
                 null,
                 $pathParameters
@@ -194,23 +192,23 @@ class RequestHandler
             return ['200', '201'];
         }
 
-        if ($operation->responses === null) {
+        if (null === $operation->responses) {
             return ['200', '201'];
         }
 
         $successCodes = [];
-        $otherCodes = [];
-        $hasDefault = false;
+        $otherCodes   = [];
+        $hasDefault   = false;
 
         foreach (array_keys($operation->responses->getResponses()) as $code) {
             $code = (string) $code;
 
-            if ($code === 'default') {
+            if ('default' === $code) {
                 $hasDefault = true;
                 continue;
             }
 
-            if (preg_match('/^2\d{2}$/', $code) === 1) {
+            if (1 === preg_match('/^2\d{2}$/', $code)) {
                 $successCodes[] = $code;
             } else {
                 $otherCodes[] = $code;
@@ -226,6 +224,6 @@ class RequestHandler
             $codes[] = 'default';
         }
 
-        return $codes !== [] ? $codes : ['200', '201'];
+        return [] !== $codes ? $codes : ['200', '201'];
     }
 }

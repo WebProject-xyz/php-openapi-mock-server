@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\SchemaFaker;
 
-use cebe\openapi\spec\Schema;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
-use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
-
 use function array_keys;
 use function array_merge;
 use function array_rand;
+use cebe\openapi\spec\Schema;
 use function count;
 use function in_array;
 use function is_array;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\MockStrategy;
+use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Options;
 
 /** @internal */
 final class ObjectFaker implements FakerInterface
@@ -21,14 +20,14 @@ final class ObjectFaker implements FakerInterface
     /** @return array<string, mixed> */
     public function generate(Schema $schema, Options $options, FakerRegistry $fakerRegistry, FakerContext $fakerContext): array
     {
-        $useStaticStrategy = $options->getStrategy() === MockStrategy::STATIC;
+        $useStaticStrategy = MockStrategy::STATIC === $options->getStrategy();
 
         if ($useStaticStrategy) {
-            if ($schema->example !== null) {
+            if (null !== $schema->example) {
                 return (array) $schema->example;
             }
 
-            if ($schema->default !== null) {
+            if (null !== $schema->default) {
                 return (array) $schema->default;
             }
         }
@@ -41,11 +40,11 @@ final class ObjectFaker implements FakerInterface
 
         if ($options->getAlwaysFakeOptionals() || $useStaticStrategy) {
             $selectedOptionalKeys = $optionalKeys;
-        } elseif ($optionalKeys !== []) {
+        } elseif ([] !== $optionalKeys) {
             $countKeys = count($optionalKeys);
             // Ensure at least one property is returned if possible, avoiding empty objects
-            $minToSelect = ($requiredKeys === []) ? 1 : 0;
-            $count     = random_int($minToSelect, $countKeys);
+            $minToSelect = ([] === $requiredKeys) ? 1 : 0;
+            $count       = random_int($minToSelect, $countKeys);
             if ($count > 0) {
                 $indices = (array) array_rand($optionalKeys, $count);
                 foreach ($indices as $index) {
@@ -55,7 +54,7 @@ final class ObjectFaker implements FakerInterface
         }
 
         $allPropertyKeys = array_merge($requiredKeys, $selectedOptionalKeys);
-        
+
         $pathParameters = $fakerContext->getPathParameters();
         // Path parameters should ALWAYS be included if they match a property
         foreach (array_keys($pathParameters) as $paramName) {
@@ -72,34 +71,34 @@ final class ObjectFaker implements FakerInterface
                 continue;
             }
 
-            if (! $fakerContext->isRequest() && ($property->writeOnly ?? false)) {
+            if (!$fakerContext->isRequest() && ($property->writeOnly ?? false)) {
                 continue;
             }
 
-            if (! in_array($key, $allPropertyKeys, true)) {
+            if (!in_array($key, $allPropertyKeys, true)) {
                 continue;
             }
 
-            if (! $property instanceof Schema) {
+            if (!$property instanceof Schema) {
                 $property = new Schema((array) $property);
             }
 
             // If we have a path parameter for this key, use it (if it's not a request context)
-            if (! $fakerContext->isRequest() && isset($pathParameters[$key])) {
-                $val = $pathParameters[$key];
+            if (!$fakerContext->isRequest() && isset($pathParameters[$key])) {
+                $val  = $pathParameters[$key];
                 $type = $property->type;
                 if (is_array($type)) {
                     $type = reset($type);
                 }
-                
-                if ($type === 'integer') {
+
+                if ('integer' === $type) {
                     $val = (int) $val;
-                } elseif ($type === 'number') {
+                } elseif ('number' === $type) {
                     $val = (float) $val;
-                } elseif ($type === 'boolean') {
+                } elseif ('boolean' === $type) {
                     $val = filter_var($val, FILTER_VALIDATE_BOOLEAN);
                 }
-                
+
                 $fakeData[$key] = $val;
                 continue;
             }

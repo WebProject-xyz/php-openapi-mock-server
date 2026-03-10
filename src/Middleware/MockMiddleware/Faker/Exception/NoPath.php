@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Faker\Exception;
 
 use Exception;
-
 use function sprintf;
 
 final class NoPath extends Exception

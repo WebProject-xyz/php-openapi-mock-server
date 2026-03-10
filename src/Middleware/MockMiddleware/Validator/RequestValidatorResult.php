@@ -58,8 +58,8 @@ class RequestValidatorResult
         }
 
         return $this->openApi                     === $other->openApi
-            && $this->operationAddress->path()   === $other->operationAddress->path()
-            && $this->operationAddress->method() === $other->operationAddress->method()
+            && $this->operationAddress->path()    === $other->operationAddress->path()
+            && $this->operationAddress->method()  === $other->operationAddress->method()
             && $exceptionMatches;
     }
 }
