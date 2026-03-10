@@ -1,0 +1,50 @@
+name: Build and Push Docker Image
+on:
+  push:
+    tags:
+     - '*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version tag to build (e.g., 1.2.3)'
+        required: true
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    name: build
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          # On workflow_dispatch, checkout the tag passed in. On a tag push, checkout the tag from the event.
+          ref: ${{ github.event.inputs.version || github.ref }}
+          fetch-depth: 0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set version
+        id: version
+        run: echo "VERSION=${{ github.event.inputs.version || github.ref_name }}" >> $GITHUB_ENV
+
+      - name: Convert repository name to lowercase
+        id: repo
+        run: echo "REPO_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ env.REPO_NAME }}:${{ env.VERSION }} .
+          docker tag ghcr.io/${{ env.REPO_NAME }}:${{ env.VERSION }} ghcr.io/${{ env.REPO_NAME }}:latest
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ env.REPO_NAME }}:${{ env.VERSION }}
+          docker push ghcr.io/${{ env.REPO_NAME }}:latest
