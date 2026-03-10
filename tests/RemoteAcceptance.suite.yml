@@ -1,0 +1,15 @@
+actor: AcceptanceTester
+modules:
+    enabled:
+        - PhpBrowser:
+            url: http://localhost:8082
+        - REST:
+            depends: PhpBrowser
+        - Asserts
+coverage:
+    remote: true
+    c3_url: http://localhost:8082/index.php
+extensions:
+    enabled:
+        - Codeception\Extension\RunProcess:
+            - OPENAPI_SPEC=https://raw.githubusercontent.com/Redocly/openapi-template/gh-pages/openapi.yaml php -S localhost:8082 -t public
