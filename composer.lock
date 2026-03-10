@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3c422fc7ef753ec328354e75049ed464",
+    "content-hash": "4845e452917bbbdb1abcff01e5461e78",
     "packages": [
         {
             "name": "devizzent/cebe-php-openapi",
@@ -5736,16 +5736,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.8.1",
+            "version": "2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "718f1ee6a878be5290af3557aeda0c91278361d9"
+                "reference": "7d0ed42f28e42d61352a7a79de682e5e67fec884"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/718f1ee6a878be5290af3557aeda0c91278361d9",
-                "reference": "718f1ee6a878be5290af3557aeda0c91278361d9",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/7d0ed42f28e42d61352a7a79de682e5e67fec884",
+                "reference": "7d0ed42f28e42d61352a7a79de682e5e67fec884",
                 "shasum": ""
             },
             "require": {
@@ -5761,6 +5761,7 @@
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
                 "http-interop/http-factory-tests": "0.9.0",
+                "jshttp/mime-db": "1.54.0.1",
                 "phpunit/phpunit": "^8.5.44 || ^9.6.25"
             },
             "suggest": {
@@ -5832,7 +5833,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.8.1"
+                "source": "https://github.com/guzzle/psr7/tree/2.9.0"
             },
             "funding": [
                 {
@@ -5848,7 +5849,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-10T09:55:26+00:00"
+            "time": "2026-03-10T16:41:02+00:00"
         },
         {
             "name": "kelunik/certificate",
@@ -8368,12 +8369,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "36683ac82ccf638fea90e617a83057de184a5833"
+                "reference": "cba34aee3aaf6a27c6dfa80d9a04ced56ebfbd54"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/36683ac82ccf638fea90e617a83057de184a5833",
-                "reference": "36683ac82ccf638fea90e617a83057de184a5833",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/cba34aee3aaf6a27c6dfa80d9a04ced56ebfbd54",
+                "reference": "cba34aee3aaf6a27c6dfa80d9a04ced56ebfbd54",
                 "shasum": ""
             },
             "conflict": {
@@ -8516,8 +8517,8 @@
                 "cosenary/instagram": "<=2.3",
                 "couleurcitron/tarteaucitron-wp": "<0.3",
                 "cpsit/typo3-mailqueue": "<0.4.3|>=0.5,<0.5.1",
-                "craftcms/cms": "<4.17.0.0-beta2|>=5,<5.9.0.0-beta2",
-                "craftcms/commerce": ">=4.0.0.0-RC1-dev,<=4.10|>=5,<=5.5.1",
+                "craftcms/cms": "<4.17.3|>=5,<5.9.6",
+                "craftcms/commerce": ">=4,<4.11|>=5,<5.6",
                 "craftcms/composer": ">=4.0.0.0-RC1-dev,<=4.10|>=5.0.0.0-RC1-dev,<=5.5.1",
                 "craftcms/craft": ">=3.5,<=4.16.17|>=5.0.0.0-RC1-dev,<=5.8.21",
                 "croogo/croogo": "<=4.0.7",
@@ -9388,7 +9389,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-10T01:37:07+00:00"
+            "time": "2026-03-10T19:18:03+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -12292,21 +12293,22 @@
         },
         {
             "name": "webproject-xyz/codeception-module-ai-reporter",
-            "version": "1.0.1",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WebProject-xyz/codeception-module-ai-reporter.git",
-                "reference": "30e2c3c0a36c104f259dc65d3c5b2669aa13597e"
+                "reference": "d1d7a96886fd77c45b3bb62c57a8d35c1ff14f14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WebProject-xyz/codeception-module-ai-reporter/zipball/30e2c3c0a36c104f259dc65d3c5b2669aa13597e",
-                "reference": "30e2c3c0a36c104f259dc65d3c5b2669aa13597e",
+                "url": "https://api.github.com/repos/WebProject-xyz/codeception-module-ai-reporter/zipball/d1d7a96886fd77c45b3bb62c57a8d35c1ff14f14",
+                "reference": "d1d7a96886fd77c45b3bb62c57a8d35c1ff14f14",
                 "shasum": ""
             },
             "require": {
                 "codeception/codeception": "^5.3.5",
-                "php": "~8.3.0 || ~8.4.0 || ~8.5.0"
+                "php": "~8.3.0 || ~8.4.0 || ~8.5.0",
+                "webmozart/assert": "^1.12.1 || ^2.1.6"
             },
             "require-dev": {
                 "codeception/module-asserts": "^3.3",
@@ -12316,8 +12318,7 @@
                 "phpstan/phpstan": "^2.1.39",
                 "phpstan/phpstan-webmozart-assert": "^2.0.0",
                 "roave/security-advisories": "dev-latest",
-                "symfony/var-dumper": "7.4.0 || ^8.0",
-                "webmozart/assert": "^2.1.5"
+                "symfony/var-dumper": "^6.4 || ^7.4 || ^8.0"
             },
             "type": "library",
             "autoload": {
@@ -12331,16 +12332,18 @@
             ],
             "authors": [
                 {
-                    "name": "AI Assistant",
-                    "email": "ai@example.com"
+                    "name": "Benjamin Fahl",
+                    "email": "ben+github@webproject.xyz",
+                    "role": "developer"
                 }
             ],
             "description": "Codeception extension that emits deterministic AI-friendly failure reports",
+            "homepage": "https://www.webproject.xyz",
             "support": {
                 "issues": "https://github.com/WebProject-xyz/codeception-module-ai-reporter/issues",
-                "source": "https://github.com/WebProject-xyz/codeception-module-ai-reporter/tree/1.0.1"
+                "source": "https://github.com/WebProject-xyz/codeception-module-ai-reporter/tree/1.0.3"
             },
-            "time": "2026-02-19T22:52:32+00:00"
+            "time": "2026-03-10T15:13:03+00:00"
         }
     ],
     "aliases": [],
