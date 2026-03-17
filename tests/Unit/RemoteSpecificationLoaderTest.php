@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WebProject\PhpOpenApiMockServer\Unit;
+namespace WebProject\PhpOpenApiMockServer\Tests\Unit;
 
 use Codeception\Test\Unit;
 use function putenv;

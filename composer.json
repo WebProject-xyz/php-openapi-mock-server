@@ -3,7 +3,6 @@
   "description": "A lightweight PHP OpenAPI mock server using Mezzio and PSR-15 middleware.",
   "license": "MIT",
   "type": "library",
-  "homepage": "https://www.webproject.xyz",
   "authors": [
     {
       "name": "Benjamin Fahl",
@@ -11,13 +10,15 @@
       "role": "developer"
     }
   ],
+  "homepage": "https://www.webproject.xyz",
   "require": {
     "php": "~8.3.0 || ~8.4.0 || ~8.5.0",
+    "ext-filter": "*",
     "ext-random": "*",
     "devizzent/cebe-php-openapi": "^1.1",
     "fakerphp/faker": "^1.24.1",
     "laminas/laminas-diactoros": "^3.8",
-    "laminas/laminas-servicemanager": "^3.24",
+    "laminas/laminas-servicemanager": "^3.24 || ^4.0",
     "league/openapi-psr7-validator": "^0.22",
     "mezzio/mezzio": "^3.27",
     "mezzio/mezzio-fastroute": "^3.14",
@@ -51,9 +52,6 @@
     "slam/phpstan-laminas-framework": "^2.0",
     "webproject-xyz/codeception-module-ai-reporter": "^1.0.1"
   },
-  "bin": [
-    "bin/openapi-mock-server"
-  ],
   "autoload": {
     "psr-4": {
       "WebProject\\PhpOpenApiMockServer\\": "src/"
@@ -67,6 +65,9 @@
       "WebProject\\PhpOpenApiMockServer\\Tests\\": "tests/"
     }
   },
+  "bin": [
+    "bin/openapi-mock-server"
+  ],
   "config": {
     "allow-plugins": {
       "codeception/c3": true,
