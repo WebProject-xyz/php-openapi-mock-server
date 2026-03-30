@@ -15,7 +15,7 @@
     "php": "~8.3.0 || ~8.4.0 || ~8.5.0",
     "ext-filter": "*",
     "ext-random": "*",
-    "devizzent/cebe-php-openapi": "^1.1",
+    "devizzent/cebe-php-openapi": "^1.1.5",
     "fakerphp/faker": "^1.24.1",
     "laminas/laminas-diactoros": "^3.8",
     "laminas/laminas-servicemanager": "^3.24 || ^4.0",
@@ -42,15 +42,15 @@
     "codeception/module-webdriver": "^4.0.5",
     "friendsofphp/php-cs-fixer": "^3.94.2",
     "maglnet/composer-require-checker": "^4.20",
-    "phpbench/phpbench": "^1.5",
+    "phpbench/phpbench": "^1.6.1",
     "phpro/grumphp": "^2.19",
     "phpstan/extension-installer": "^1.4.3",
-    "phpstan/phpstan": "^2.1.40",
+    "phpstan/phpstan": "^2.1.45",
     "phpstan/phpstan-webmozart-assert": "^2.0.0",
-    "rector/rector": "^2.3",
+    "rector/rector": "^2.3.9",
     "roave/security-advisories": "dev-master",
     "slam/phpstan-laminas-framework": "^2.0",
-    "webproject-xyz/codeception-module-ai-reporter": "^1.0.1"
+    "webproject-xyz/codeception-module-ai-reporter": "^1.1.0"
   },
   "autoload": {
     "psr-4": {
