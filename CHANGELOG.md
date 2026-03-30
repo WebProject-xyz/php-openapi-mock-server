@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.3](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.2...1.3.3) (2026-03-30)
+
+### Bug Fixes
+
+* **deps:** bump cebe-php-openapi ([0565b4c](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/0565b4c1c5d541e0d8f42784845d28787a2ae20b))
+
 ## [1.3.2](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.1...1.3.2) (2026-03-10)
 
 ### Bug Fixes
