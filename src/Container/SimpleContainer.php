@@ -149,7 +149,7 @@ final class SimpleContainer implements ContainerInterface
 
         while (isset($this->aliases[$id])) {
             if (isset($seen[$id])) {
-                throw new class("Circular alias detected for '{$id}'.") extends RuntimeException implements ContainerExceptionInterface {};
+                throw new RuntimeException("Circular alias detected for '{$id}'.");
             }
 
             $seen[$id] = true;
