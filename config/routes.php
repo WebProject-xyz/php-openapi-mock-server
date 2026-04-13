@@ -12,9 +12,9 @@ use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\Utils\RemoteSpecif
 
 return static function (Application $application, MiddlewareFactory $middlewareFactory): void {
     $specPath    = getenv('OPENAPI_SPEC') ?: null;
-    $packageRoot = realpath(__DIR__ . '/..') ?: '/app';
+    $packageRoot = dirname(__DIR__) ?: '/app';
 
-    if (null === $specPath || false === $specPath) {
+    if (null === $specPath) {
         $specPath = $packageRoot . '/data/openapi.yaml';
     } elseif (!str_starts_with((string) $specPath, '/') && !str_starts_with((string) $specPath, 'http')) {
         $resolveBase = str_contains($packageRoot, DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR)

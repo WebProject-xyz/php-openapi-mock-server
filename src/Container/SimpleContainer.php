@@ -23,6 +23,14 @@ use WebProject\PhpOpenApiMockServer\Container\Exception\NotFoundException;
 /**
  * Lightweight PSR-11 container that supports the Mezzio ConfigProvider format
  * (factories, aliases, invokables, delegators) without requiring laminas-servicemanager.
+ *
+ * @phpstan-type MezzioDependencyConfig array{
+ *     services?: array<string, mixed>,
+ *     factories?: array<string, (callable(): mixed)|string>,
+ *     aliases?: array<string, string>,
+ *     invokables?: array<int|string, string>,
+ *     delegators?: array<string, array<int|string, (callable(): mixed)|string>>
+ * }|array<string, string[]>
  */
 final class SimpleContainer implements ContainerInterface
 {
@@ -35,7 +43,7 @@ final class SimpleContainer implements ContainerInterface
     /** @var array<string, string> */
     private array $aliases = [];
 
-    /** @var array<string, list<callable|string>> */
+    /** @var array<string, array<int|string, callable|string>> */
     private array $delegators = [];
 
     public function get(string $id): mixed
@@ -112,15 +120,16 @@ final class SimpleContainer implements ContainerInterface
     /**
      * Process a Mezzio-style dependency configuration array.
      *
-     * @param array{
-     *     factories?: array<string, callable|string>,
-     *     aliases?: array<string, string>,
-     *     invokables?: array<int|string, string>,
-     *     delegators?: array<string, list<callable|string>>
-     * } $config
+     * @param MezzioDependencyConfig $config
      */
     public function configure(array $config): void
     {
+        if (isset($config['services']) && is_array($config['services'])) {
+            foreach ($config['services'] as $name => $service) {
+                $this->setService($name, $service);
+            }
+        }
+
         if (isset($config['invokables']) && is_array($config['invokables'])) {
             foreach ($config['invokables'] as $name => $class) {
                 $this->setInvokableClass(is_int($name) ? $class : $name, $class);
