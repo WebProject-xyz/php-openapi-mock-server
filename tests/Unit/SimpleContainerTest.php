@@ -22,8 +22,6 @@ class SimpleContainerTest extends Unit
         $container->setAlias('a', 'b');
         $container->setAlias('b', 'a');
 
-        // Current behavior: this throws ContainerException
-        // Desired behavior: this returns false
         self::assertFalse($container->has('a'));
     }
 
