@@ -159,22 +159,25 @@ final class SimpleContainer implements ContainerInterface
 
     public function setService(string $name, mixed $service): void
     {
+        unset($this->aliases[$name], $this->factories[$name]);
         $this->services[$name] = $service;
     }
 
     public function setFactory(string $name, callable|string $factory): void
     {
+        unset($this->aliases[$name], $this->services[$name]);
         $this->factories[$name] = $factory;
     }
 
     public function setAlias(string $alias, string $target): void
     {
+        unset($this->services[$alias], $this->factories[$alias]);
         $this->aliases[$alias] = $target;
     }
 
     public function setInvokableClass(string $name, string $class): void
     {
-        $this->factories[$name] = static fn (): object => new $class();
+        $this->setFactory($name, static fn (): object => new $class());
     }
 
     private function resolveAlias(string $id, bool $throwOnCircular = true): ?string
