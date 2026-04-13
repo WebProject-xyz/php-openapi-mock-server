@@ -5,11 +5,17 @@ declare(strict_types=1);
 namespace WebProject\PhpOpenApiMockServer\Container;
 
 use function array_key_exists;
+use function class_exists;
+use Closure;
 use function is_array;
 use function is_callable;
 use function is_int;
+use function is_object;
 use function is_string;
 use Psr\Container\ContainerInterface;
+use ReflectionFunction;
+use ReflectionMethod;
+use function str_contains;
 use Webmozart\Assert\Assert;
 use WebProject\PhpOpenApiMockServer\Container\Exception\ContainerException;
 use WebProject\PhpOpenApiMockServer\Container\Exception\NotFoundException;
@@ -55,7 +61,21 @@ final class SimpleContainer implements ContainerInterface
             throw new ContainerException("Factory for '{$resolved}' is not callable.");
         }
 
-        $instance = $factory($this, $resolved);
+        $reflection = match (true) {
+            $factory instanceof Closure                          => new ReflectionFunction($factory),
+            is_string($factory) && !str_contains($factory, '::') => new ReflectionFunction($factory),
+            is_string($factory) && str_contains($factory, '::')  => new ReflectionMethod($factory),
+            is_array($factory)                                   => new ReflectionMethod($factory[0], $factory[1]),
+            is_object($factory)                                  => new ReflectionMethod($factory, '__invoke'),
+            default                                              => throw new ContainerException("Unsupported factory type for '{$resolved}'."),
+        };
+
+        $params   = $reflection->getNumberOfParameters();
+        $instance = match (true) {
+            0 === $params => $factory(),
+            1 === $params => $factory($this),
+            default       => $factory($this, $resolved),
+        };
 
         if (isset($this->delegators[$resolved])) {
             foreach ($this->delegators[$resolved] as $delegator) {
