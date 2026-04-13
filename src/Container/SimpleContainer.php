@@ -9,10 +9,9 @@ use function is_array;
 use function is_callable;
 use function is_int;
 use function is_string;
-use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
-use RuntimeException;
+use WebProject\PhpOpenApiMockServer\Container\Exception\ContainerException;
+use WebProject\PhpOpenApiMockServer\Container\Exception\NotFoundException;
 
 /**
  * Lightweight PSR-11 container that supports the Mezzio ConfigProvider format
@@ -41,7 +40,7 @@ final class SimpleContainer implements ContainerInterface
         }
 
         if (!isset($this->factories[$resolved])) {
-            throw new class("Service '{$id}' not found in container.") extends RuntimeException implements NotFoundExceptionInterface {};
+            throw new NotFoundException("Service '{$id}' not found in container.");
         }
 
         $factory = $this->factories[$resolved];
@@ -51,7 +50,7 @@ final class SimpleContainer implements ContainerInterface
         }
 
         if (!is_callable($factory)) {
-            throw new class("Factory for '{$resolved}' is not callable.") extends RuntimeException implements ContainerExceptionInterface {};
+            throw new ContainerException("Factory for '{$resolved}' is not callable.");
         }
 
         $instance = $factory($this, $resolved);
@@ -65,7 +64,7 @@ final class SimpleContainer implements ContainerInterface
                 }
 
                 if (!is_callable($delegator)) {
-                    throw new class("Delegator for '{$resolved}' is not callable.") extends RuntimeException implements ContainerExceptionInterface {};
+                    throw new ContainerException("Delegator for '{$resolved}' is not callable.");
                 }
 
                 $instance = $delegator($this, $resolved, static fn (): mixed => $current);
@@ -149,7 +148,7 @@ final class SimpleContainer implements ContainerInterface
 
         while (isset($this->aliases[$id])) {
             if (isset($seen[$id])) {
-                throw new RuntimeException("Circular alias detected for '{$id}'.");
+                throw new ContainerException("Circular alias detected for '{$id}'.");
             }
 
             $seen[$id] = true;
