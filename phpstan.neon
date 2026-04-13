@@ -1,12 +1,14 @@
 parameters:
     level: 8
     treatPhpDocTypesAsCertain: false
+
+
     paths:
+        - bin
+        - config
         - src
         - public
         - tests
-    bootstrapFiles:
-        - vendor/autoload.php
     excludePaths:
         analyse:
             - tests/Support/_generated/*
