@@ -7,8 +7,6 @@ parameters:
         - tests
     bootstrapFiles:
         - vendor/autoload.php
-    laminasframework:
-        serviceManagerLoader: tests/phpstan-container.php
     excludePaths:
         analyse:
             - tests/Support/_generated/*
