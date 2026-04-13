@@ -10,6 +10,7 @@ use function is_callable;
 use function is_int;
 use function is_string;
 use Psr\Container\ContainerInterface;
+use Webmozart\Assert\Assert;
 use WebProject\PhpOpenApiMockServer\Container\Exception\ContainerException;
 use WebProject\PhpOpenApiMockServer\Container\Exception\NotFoundException;
 
@@ -33,7 +34,8 @@ final class SimpleContainer implements ContainerInterface
 
     public function get(string $id): mixed
     {
-        $resolved = $this->resolveAlias($id);
+        $resolved = $this->resolveAlias($id, true);
+        Assert::string($resolved);
 
         if (array_key_exists($resolved, $this->services)) {
             return $this->services[$resolved];
@@ -78,7 +80,11 @@ final class SimpleContainer implements ContainerInterface
 
     public function has(string $id): bool
     {
-        $resolved = $this->resolveAlias($id);
+        $resolved = $this->resolveAlias($id, false);
+
+        if (null === $resolved) {
+            return false;
+        }
 
         return array_key_exists($resolved, $this->services) || isset($this->factories[$resolved]);
     }
@@ -142,13 +148,17 @@ final class SimpleContainer implements ContainerInterface
         $this->factories[$name] = static fn (): object => new $class();
     }
 
-    private function resolveAlias(string $id): string
+    private function resolveAlias(string $id, bool $throwOnCircular = true): ?string
     {
         $seen = [];
 
         while (isset($this->aliases[$id])) {
             if (isset($seen[$id])) {
-                throw new ContainerException("Circular alias detected for '{$id}'.");
+                if ($throwOnCircular) {
+                    throw new ContainerException("Circular alias detected for '{$id}'.");
+                }
+
+                return null;
             }
 
             $seen[$id] = true;
