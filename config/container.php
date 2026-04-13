@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\StreamFactory;
-use Laminas\ServiceManager\ServiceManager;
 use Mezzio\ConfigProvider;
 use Mezzio\ProblemDetails\ConfigProvider as ProblemDetailsConfigProvider;
 use Mezzio\Router\ConfigProvider as RouterConfigProvider;
@@ -15,11 +14,12 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use WebProject\PhpOpenApiMockServer\Container\SimpleContainer;
 use WebProject\PhpOpenApiMockServer\Factory\OpenApiMockMiddlewareFactory;
 use WebProject\PhpOpenApiMockServer\Middleware\ForceMockActiveMiddleware;
 use WebProject\PhpOpenApiMockServer\Middleware\MockMiddleware\OpenApiMockMiddleware;
 
-$container = new ServiceManager();
+$container = new SimpleContainer();
 
 // Register required Mezzio services
 $container->configure((new ConfigProvider())->getDependencies());
