@@ -9,6 +9,7 @@ use function is_array;
 use function is_callable;
 use function is_int;
 use function is_string;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
@@ -50,7 +51,7 @@ final class SimpleContainer implements ContainerInterface
         }
 
         if (!is_callable($factory)) {
-            throw new RuntimeException("Factory for '{$resolved}' is not callable.");
+            throw new class("Factory for '{$resolved}' is not callable.") extends RuntimeException implements ContainerExceptionInterface {};
         }
 
         $instance = $factory($this, $resolved);
@@ -64,7 +65,7 @@ final class SimpleContainer implements ContainerInterface
                 }
 
                 if (!is_callable($delegator)) {
-                    throw new RuntimeException("Delegator for '{$resolved}' is not callable.");
+                    throw new class("Delegator for '{$resolved}' is not callable.") extends RuntimeException implements ContainerExceptionInterface {};
                 }
 
                 $instance = $delegator($this, $resolved, static fn (): mixed => $current);
@@ -148,7 +149,7 @@ final class SimpleContainer implements ContainerInterface
 
         while (isset($this->aliases[$id])) {
             if (isset($seen[$id])) {
-                throw new RuntimeException("Circular alias detected for '{$id}'.");
+                throw new class("Circular alias detected for '{$id}'.") extends RuntimeException implements ContainerExceptionInterface {};
             }
 
             $seen[$id] = true;
