@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.4](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.3...1.3.4) (2026-04-14)
+
+### Bug Fixes
+
+* **container:** ensure has() returns false on circular aliases to satisfy PSR-11 ([828941c](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/828941cda8adf8beaca33ec23db2f2d34c516943))
+* **container:** ensure last registration wins and simplify spec path resolution ([1c95b65](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/1c95b65995fb4755938131cffd4a04f65c6c2199))
+* **container:** revert circular alias to plain RuntimeException ([83f12c9](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/83f12c9900cb57e8808023eb231c06fde3c68cca))
+* **container:** support factories with 0, 1, or 2 arguments using reflection ([9dc1596](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/9dc15966133194ab6dbe6edccac8951fcab5327f))
+* **container:** use ContainerExceptionInterface for non-NotFound errors ([d88dfa2](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/d88dfa2a33a9518930e9552a8abf08c991580eee))
+* **phpstan:** fix phpstan issues ([79450df](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/79450df8c5f0abbaa89778b51a2b635eb4bf51cd))
+
 ## [1.3.3](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.2...1.3.3) (2026-03-30)
 
 ### Bug Fixes
