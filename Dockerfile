@@ -17,7 +17,7 @@ RUN composer install \
     --ignore-platform-reqs
 
 # Stage 2: Final image
-FROM dunglas/frankenphp:latest@sha256:145db7730bcbcfe0bfa2fe5d5953fc83919aa704807268e39b1a215e00d68a20
+FROM dunglas/frankenphp:latest@sha256:e060fea93cc93f4ce0599b1f078cbe1cab7ee9eca83136949fc65c4ccbf278df
 
 # Disable HTTPS by default for the container
 ENV SERVER_NAME=:80
