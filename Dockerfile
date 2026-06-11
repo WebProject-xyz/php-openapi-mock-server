@@ -1,5 +1,5 @@
 # Stage 1: Install dependencies
-FROM composer:2@sha256:b09bccd91a78fe8a9ab4b33d707b862e8fe54fec17782e32683ad2a69c46867d AS composer_build
+FROM composer:2@sha256:c883af18892268b3b8369c4a39c08f80b393383e79d80b75140a3ea489dbbb78 AS composer_build
 
 WORKDIR /app
 
