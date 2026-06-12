@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   ci:
-    uses: "WebProject-xyz/.github/.github/workflows/ci.yml@bb7092568ea7522b9670c51a870a0373f183e466" # main
+    uses: "WebProject-xyz/.github/.github/workflows/ci.yml@72e0852530691b36a26a2d8df6e3edaa3ce779ed" # main
     secrets: inherit
     with:
       test-matrix: |
