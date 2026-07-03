@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.6](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.5...1.3.6) (2026-07-03)
+
+### Bug Fixes
+
+* **deps:** update deps and drop composer-req-checker ([7768393](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/7768393753ef71262798825967f6018d7707a819))
+
 ## [1.3.5](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.4...1.3.5) (2026-06-12)
 
 ### Bug Fixes
