@@ -40,7 +40,6 @@
     "codeception/module-rest": "^3.4.3",
     "codeception/module-webdriver": "^4.0.5",
     "friendsofphp/php-cs-fixer": "^3.95.1",
-    "maglnet/composer-require-checker": "^4.20",
     "phpbench/phpbench": "^1.6.1",
     "phpro/grumphp": "^2.20",
     "phpstan/extension-installer": "^1.4.3",
