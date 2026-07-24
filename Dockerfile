@@ -1,5 +1,5 @@
 # Stage 1: Install dependencies
-FROM composer:2@sha256:7725eb4545c438629ae8bde3ef0bb9a5038ef566126ad878442a69007242d267 AS composer_build
+FROM composer:2@sha256:5946476338742b200bb9ff88f8be56275ddae4b3949c72305cb0dbf10cfcb760 AS composer_build
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN composer install \
     --ignore-platform-reqs
 
 # Stage 2: Final image
-FROM dunglas/frankenphp:latest@sha256:20a87cd407119ca854f026007b2fc2430d81178c3606b7b4cc543dc0b3c2724a
+FROM dunglas/frankenphp:latest@sha256:da270879b95225345b2ee984f717aef5cba7336e1f206ec005074a79235af347
 
 # Disable HTTPS by default for the container
 ENV SERVER_NAME=:80
