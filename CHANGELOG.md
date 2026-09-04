@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.7](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.6...1.3.7) (2026-09-04)
+
+### Bug Fixes
+
+* **deps:** update ci workflow ([7a16a64](https://github.com/WebProject-xyz/php-openapi-mock-server/commit/7a16a646effe5a89c505b1ac2d73bcd76ec6c542))
+
 ## [1.3.6](https://github.com/WebProject-xyz/php-openapi-mock-server/compare/1.3.5...1.3.6) (2026-07-03)
 
 ### Bug Fixes
